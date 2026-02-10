@@ -3,21 +3,119 @@ import streamlit as st
 import json
 import os
 
-# Set page config
-st.set_page_config(page_title="OutSystems Certification Practice", page_icon="🚀", layout="wide")
+# Set page config with mobile optimization
+st.set_page_config(
+    page_title="OutSystems Certification Practice", 
+    page_icon="🚀", 
+    layout="wide",
+    initial_sidebar_state="auto",  # Auto-collapse on mobile
+    menu_items={
+        'About': "OutSystems Certification Practice - Optimized for Mobile & Desktop"
+    }
+)
 
-# Custom CSS for better aesthetics
+# Custom CSS for better aesthetics and mobile optimization
 st.markdown("""
     <style>
     .main {
         background-color: #f8f9fa;
     }
+    
+    /* Mobile-first responsive design */
+    @media (max-width: 768px) {
+        .main .block-container {
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+            padding-top: 1rem !important;
+        }
+        
+        h1 {
+            font-size: 1.5rem !important;
+        }
+        
+        h2, h3 {
+            font-size: 1.2rem !important;
+        }
+        
+        h4 {
+            font-size: 1rem !important;
+        }
+        
+        /* Make buttons full width on mobile */
+        .stButton > button {
+            width: 100% !important;
+            padding: 0.75rem !important;
+            font-size: 1rem !important;
+            margin-bottom: 0.5rem !important;
+        }
+        
+        /* Optimize radio buttons for touch */
+        .stRadio [role="radiogroup"] label {
+            padding: 1rem !important;
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+        }
+        
+        /* Better spacing for form elements */
+        .stRadio {
+            margin-bottom: 1rem !important;
+        }
+        
+        /* Responsive images */
+        img {
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* Better sidebar on mobile */
+        section[data-testid="stSidebar"] {
+            width: 100% !important;
+        }
+        
+        /* Improve expander on mobile */
+        .streamlit-expanderHeader {
+            font-size: 0.95rem !important;
+            padding: 0.75rem !important;
+        }
+        
+        /* Better metrics display */
+        [data-testid="stMetricValue"] {
+            font-size: 1.2rem !important;
+        }
+        
+        /* Progress bar visibility */
+        .stProgress > div > div {
+            height: 8px !important;
+        }
+    }
+    
+    /* Tablet adjustments */
+    @media (min-width: 769px) and (max-width: 1024px) {
+        .main .block-container {
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+        }
+        
+        .stButton > button {
+            padding: 0.6rem 1.2rem !important;
+        }
+    }
+    
+    /* Touch-friendly elements */
     .stRadio [role="radiogroup"] {
         padding: 10px;
         border-radius: 10px;
         background-color: white;
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
+    
+    .stRadio [role="radiogroup"] label {
+        min-height: 44px; /* iOS recommended touch target */
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+    
     .question-box {
         background-color: white;
         padding: 20px;
@@ -26,20 +124,41 @@ st.markdown("""
         border-left: 5px solid #2d3e50;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     }
+    
     .correct-ans {
         color: #28a745;
         font-weight: bold;
     }
+    
     .wrong-ans {
         color: #dc3545;
         font-weight: bold;
     }
+    
     .explanation {
         background-color: #f1f3f5;
         padding: 15px;
         border-radius: 10px;
         font-style: italic;
         border-left: 3px solid #2d3e50;
+    }
+    
+    /* Improve button visibility and touch targets */
+    button {
+        min-height: 44px !important;
+        touch-action: manipulation;
+    }
+    
+    /* Better text readability on mobile */
+    p, li, span {
+        line-height: 1.6;
+        word-wrap: break-word;
+    }
+    
+    /* Prevent horizontal scroll on mobile */
+    .main, .block-container {
+        overflow-x: hidden !important;
+        max-width: 100vw !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -181,7 +300,7 @@ if questions:
             
             # Show image if exists
             if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
-                st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width=600)
+                st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", use_column_width=True)
             
             # Format options for display
             options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
@@ -241,7 +360,8 @@ if questions:
             
             # Navigation buttons
             st.write("---")
-            col1, col2 = st.columns([1, 1])
+            # Responsive button layout
+            col1, col2 = st.columns([1, 1], gap="small")
             
             with col1:
                 if idx > 0:
@@ -274,7 +394,7 @@ if questions:
                     
                     # Show image if exists (only for version 1 usually, but generic-safe)
                     if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
-                        st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width=600)
+                        st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", use_column_width=True)
                     
                     # Format options for display
                     options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
@@ -308,7 +428,8 @@ if questions:
         
         # summary
         st.header("📊 Exam Results / 시험 결과")
-        col1, col2, col3 = st.columns(3)
+        # Responsive column layout for mobile
+        col1, col2, col3 = st.columns([1, 1, 1])
         col1.metric("Total Questions", len(questions))
         col2.metric("Correct Answers", score, f"{score/len(questions)*100:.1f}%")
         col3.metric("Wrong Answers", len(wrong_questions))
@@ -334,7 +455,7 @@ if questions:
                 
                 # Show image if exists
                 if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
-                    st.image(IMAGES[q['id']], width=600)
+                    st.image(IMAGES[q['id']], use_column_width=True)
 
                 # Display options
                 for opt in q['options']:
