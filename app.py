@@ -117,6 +117,8 @@ if 'quiz_mode' not in st.session_state:
     st.session_state.quiz_mode = "한 번에 보기"  # or "한 문제씩"
 if 'current_question_idx' not in st.session_state:
     st.session_state.current_question_idx = 0
+if 'checked_questions' not in st.session_state:
+    st.session_state.checked_questions = {}  # Track which questions have been checked
 
 # Sidebar Controls
 st.sidebar.markdown("---")
@@ -132,12 +134,14 @@ quiz_mode = st.sidebar.radio(
 if quiz_mode != st.session_state.quiz_mode:
     st.session_state.quiz_mode = quiz_mode
     st.session_state.current_question_idx = 0
+    st.session_state.checked_questions = {}
     st.rerun()
 
 if st.sidebar.button("Reset Quiz"):
     st.session_state.user_answers = {}
     st.session_state.submitted = False
     st.session_state.current_question_idx = 0
+    st.session_state.checked_questions = {}
     st.rerun()
 
 st.title(f"{selected_version['title']}")
@@ -192,10 +196,50 @@ if questions:
             
             # Store answer
             if selected:
-                st.session_state.user_answers[q['id']] = selected[0]
+            st.write("---")
+            
+            # Check if this question has been checked
+            is_checked = st.session_state.checked_questions.get(q['id'], False)
+            
+            if not is_checked:
+                # Show check answer button
+                if st.button("✅ 정답 확인", use_container_width=True, type="primary"):
+                    if selected:
+                        st.session_state.checked_questions[q['id']] = True
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ 답을 먼저 선택해주세요!")
+            
+            # Show answer and explanation if checked
+            if is_checked:
+                user_choice = st.session_state.user_answers.get(q['id'])
+                correct_choice = q['answer_code']
+                is_correct = user_choice == correct_choice
+                
+                if is_correct:
+                    st.success("🎉 정답입니다!")
+                else:
+                    st.error(f"❌ 오답입니다. 정답은 {correct_choice}입니다.")
+                
+                st.write("---")
+                st.markdown("### 📝 선택지 및 해설")
+                
+                # Display options with correct/wrong indicators
+                for opt in q['options']:
+                    if opt['code'] == correct_choice:
+                        st.markdown(f"✅ **{opt['code']}. {get_bilingual_opt(opt['text'])}** ← 정답")
+                    elif opt['code'] == user_choice and not is_correct:
+                        st.markdown(f"❌ {opt['code']}. {get_bilingual_opt(opt['text'])} ← 내가 선택한 답")
+                    else:
+                        st.markdown(f"   {opt['code']}. {get_bilingual_opt(opt['text'])}")
+                
+                st.write("---")
+                st.markdown("### 💡 해설")
+                st.info(q['explanation'])
             
             # Navigation buttons
-            col1, col2, col3 = st.columns([1, 1, 1])
+            st.write("---")
+            col1, col2 = st.columns([1, 1])
             
             with col1:
                 if idx > 0:
@@ -204,20 +248,20 @@ if questions:
                         st.rerun()
             
             with col2:
-                if st.button("💾 답안 저장", use_container_width=True):
-                    st.success("답안이 저장되었습니다!")
-            
-            with col3:
                 if idx < len(questions) - 1:
                     if st.button("다음 문제 ➡️", use_container_width=True):
                         st.session_state.current_question_idx += 1
                         st.rerun()
                 else:
-                    if st.button("✅ 제출하기", use_container_width=True):
+                    if st.button("📊 전체 결과 보기", use_container_width=True, type="primary"):
                         st.session_state.submitted = True
                         st.rerun()
             
             # Show answer status
+            st.write("---")
+            answered_count = len([a for a in st.session_state.user_answers.values() if a])
+            checked_count = len([v for v in st.session_state.checked_questions.values() if v])
+            st.caption(f"📌 답변한 문제: {answered_count} / {len(questions)} | 확인한 문제: {checked_count
             st.write("---")
             st.caption(f"현재까지 답변한 문제: {len([a for a in st.session_state.user_answers.values() if a])} / {len(questions)}")
             
@@ -316,6 +360,7 @@ if questions:
             st.session_state.submitted = False
             st.session_state.user_answers = {}
             st.session_state.current_question_idx = 0
+            st.session_state.checked_questions = {}
             st.rerun()
 
 else:
