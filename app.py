@@ -196,6 +196,8 @@ if questions:
             
             # Store answer
             if selected:
+                st.session_state.user_answers[q['id']] = selected[0]
+            
             st.write("---")
             
             # Check if this question has been checked
