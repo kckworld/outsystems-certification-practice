@@ -44,27 +44,30 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+# Get base directory for proper file paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Image paths mapping
 IMAGES = {
-    "46": "Q46.png",
-    "52": "Q52.png",
-    "64": "Q64.png"
+    "46": os.path.join(BASE_DIR, "Q46.png"),
+    "52": os.path.join(BASE_DIR, "Q52.png"),
+    "64": os.path.join(BASE_DIR, "Q64.png")
 }
 
 # Exam Versions Configuration
 EXAM_VERSIONS = {
     "버전 1: 기본 모의고사 (KR/EN)": {
-        "file": "structured_data.json",
+        "file": os.path.join(BASE_DIR, "structured_data.json"),
         "has_bilingual": True,
         "title": "🛡️ OutSystems Associate Certification Core Exam"
     },
     "버전 2: 신규 통합 모의고사 (70문항)": {
-        "file": "new_exam_data.json",
+        "file": os.path.join(BASE_DIR, "new_exam_data.json"),
         "has_bilingual": False,
         "title": "📝 New Practice Exam (Core + Scenario)"
     },
     "버전 3: 고난도 시나리오 (100문항)": {
-        "file": "scenario_exam_data.json",
+        "file": os.path.join(BASE_DIR, "scenario_exam_data.json"),
         "has_bilingual": False,
         "title": "🌪️ Advanced Scenario Mock Exam"
     }
@@ -80,8 +83,8 @@ def load_quiz_data(file_path):
             
     translations = {}
     opt_translations = {}
-    if file_path == "structured_data.json":
-        trans_file = "translations.json"
+    if "structured_data.json" in file_path:
+        trans_file = os.path.join(BASE_DIR, "translations.json")
         if os.path.exists(trans_file):
             with open(trans_file, "r", encoding="utf-8") as f:
                 t_data = json.load(f)
