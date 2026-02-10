@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Data/Scripts to Ignore (Keep only app.py and data needed for app)
+extract_data.py
+generate_md.py
+generate_practice_exam.py
+parse_extracted.py
+translate_and_generate.py
+update_with_answer_key.py
+check_libs.py
+export_translations.py
+extracted_raw.json
+
+# Markdown/PDF Documents (Optional to ignore, but usually not needed for the running app)
+*.pdf
+# *.md  # Uncomment if you don't even want the markdown files in the repo
+
+# Specific files to keep (Not strictly necessary in gitignore but for clarity)
+# app.py
+# structured_data.json
+# translations.json
+# requirements.txt
+# Q46.png, Q52.png, Q64.png
