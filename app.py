@@ -112,12 +112,32 @@ if 'user_answers' not in st.session_state:
 if 'submitted' not in st.session_state:
     st.session_state.submitted = False
 
+# Session State for Question Navigation
+if 'quiz_mode' not in st.session_state:
+    st.session_state.quiz_mode = "한 번에 보기"  # or "한 문제씩"
+if 'current_question_idx' not in st.session_state:
+    st.session_state.current_question_idx = 0
+
 # Sidebar Controls
 st.sidebar.markdown("---")
 st.sidebar.title("🎮 Quiz Control")
+
+# Quiz Mode Selection
+quiz_mode = st.sidebar.radio(
+    "풀이 모드 선택:",
+    ["한 번에 보기", "한 문제씩 풀기"],
+    index=0 if st.session_state.quiz_mode == "한 번에 보기" else 1
+)
+
+if quiz_mode != st.session_state.quiz_mode:
+    st.session_state.quiz_mode = quiz_mode
+    st.session_state.current_question_idx = 0
+    st.rerun()
+
 if st.sidebar.button("Reset Quiz"):
     st.session_state.user_answers = {}
     st.session_state.submitted = False
+    st.session_state.current_question_idx = 0
     st.rerun()
 
 st.title(f"{selected_version['title']}")
@@ -138,35 +158,99 @@ def get_bilingual_opt(opt_text):
 
 if questions:
     if not st.session_state.submitted:
-        # Quiz Form
-        with st.form("quiz_form"):
-            for idx, q in enumerate(questions):
-                st.markdown(f"#### 문제 {q['id']}")
-                st.markdown(get_bilingual_q(q['question']))
-                
-                # Show image if exists (only for version 1 usually, but generic-safe)
-                if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
-                    st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width=600)
-                
-                # Format options for display
-                options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
-                
-                selected = st.radio(
-                    f"Select your answer for Question {q['id']}:",
-                    options_list,
-                    index=None,
-                    key=f"q_{idx}_{q['id']}",
-                    label_visibility="collapsed"
-                )
-                
-                # Store answer (just the code A, B, C...)
-                st.session_state.user_answers[q['id']] = selected[0] if selected else None
-                st.write("") # Spacer
-
-            submit_btn = st.form_submit_button("Submit Exam / 답안 제출", use_container_width=True)
-            if submit_btn:
+        # Check quiz mode
+        if st.session_state.quiz_mode == "한 문제씩 풀기":
+            # Single Question Mode
+            idx = st.session_state.current_question_idx
+            if idx >= len(questions):
                 st.session_state.submitted = True
                 st.rerun()
+            
+            q = questions[idx]
+            
+            # Progress indicator
+            st.progress((idx) / len(questions))
+            st.caption(f"Progress: {idx + 1} / {len(questions)}")
+            
+            st.markdown(f"### 문제 {q['id']}")
+            st.markdown(f"#### {get_bilingual_q(q['question'])}")
+            
+            # Show image if exists
+            if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
+                st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width=600)
+            
+            # Format options for display
+            options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
+            
+            selected = st.radio(
+                f"답을 선택하세요:",
+                options_list,
+                index=None if q['id'] not in st.session_state.user_answers else 
+                      [opt['code'] for opt in q['options']].index(st.session_state.user_answers[q['id']]) if st.session_state.user_answers.get(q['id']) else None,
+                key=f"single_q_{idx}_{q['id']}"
+            )
+            
+            # Store answer
+            if selected:
+                st.session_state.user_answers[q['id']] = selected[0]
+            
+            # Navigation buttons
+            col1, col2, col3 = st.columns([1, 1, 1])
+            
+            with col1:
+                if idx > 0:
+                    if st.button("⬅️ 이전 문제", use_container_width=True):
+                        st.session_state.current_question_idx -= 1
+                        st.rerun()
+            
+            with col2:
+                if st.button("💾 답안 저장", use_container_width=True):
+                    st.success("답안이 저장되었습니다!")
+            
+            with col3:
+                if idx < len(questions) - 1:
+                    if st.button("다음 문제 ➡️", use_container_width=True):
+                        st.session_state.current_question_idx += 1
+                        st.rerun()
+                else:
+                    if st.button("✅ 제출하기", use_container_width=True):
+                        st.session_state.submitted = True
+                        st.rerun()
+            
+            # Show answer status
+            st.write("---")
+            st.caption(f"현재까지 답변한 문제: {len([a for a in st.session_state.user_answers.values() if a])} / {len(questions)}")
+            
+        else:
+            # All Questions Mode (Original)
+            with st.form("quiz_form"):
+                for idx, q in enumerate(questions):
+                    st.markdown(f"#### 문제 {q['id']}")
+                    st.markdown(get_bilingual_q(q['question']))
+                    
+                    # Show image if exists (only for version 1 usually, but generic-safe)
+                    if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
+                        st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width=600)
+                    
+                    # Format options for display
+                    options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
+                    
+                    selected = st.radio(
+                        f"Select your answer for Question {q['id']}:",
+                        options_list,
+                        index=None,
+                        key=f"q_{idx}_{q['id']}",
+                        label_visibility="collapsed"
+                    )
+                    
+                    # Store answer (just the code A, B, C...)
+                    st.session_state.user_answers[q['id']] = selected[0] if selected else None
+                    st.write("") # Spacer
+
+                submit_btn = st.form_submit_button("Submit Exam / 답안 제출", use_container_width=True)
+                if submit_btn:
+                    st.session_state.submitted = True
+                    st.rerun()
     else:
         # Results Section
         score = 0
@@ -231,6 +315,7 @@ if questions:
         if st.button("Restart Quiz / 다시 풀기"):
             st.session_state.submitted = False
             st.session_state.user_answers = {}
+            st.session_state.current_question_idx = 0
             st.rerun()
 
 else:
