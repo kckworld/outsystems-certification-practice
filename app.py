@@ -263,9 +263,7 @@ if questions:
             st.write("---")
             answered_count = len([a for a in st.session_state.user_answers.values() if a])
             checked_count = len([v for v in st.session_state.checked_questions.values() if v])
-            st.caption(f"📌 답변한 문제: {answered_count} / {len(questions)} | 확인한 문제: {checked_count
-            st.write("---")
-            st.caption(f"현재까지 답변한 문제: {len([a for a in st.session_state.user_answers.values() if a])} / {len(questions)}")
+            st.caption(f"📌 답변한 문제: {answered_count} / {len(questions)} | 확인한 문제: {checked_count} / {len(questions)}")
             
         else:
             # All Questions Mode (Original)
