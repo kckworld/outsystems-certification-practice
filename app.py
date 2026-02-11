@@ -375,24 +375,23 @@ if questions:
                 
                 # Copyable text section for GPT
                 st.write("---")
-                # Build copyable text
-                copy_text = f"""문제 {q['id']}:
+                with st.expander("📋 복사용 텍스트 (GPT 추가 설명 요청용)", expanded=False):
+                    # Build copyable text
+                    copy_text = f"""문제 {q['id']}:
 {get_bilingual_q(q['question'])}
 
 선택지:
 """
-                for opt in q['options']:
-                    copy_text += f"{opt['code']}. {get_bilingual_opt(opt['text'])}\n"
-                
-                copy_text += f"\n정답: {correct_choice}\n"
-                copy_text += f"내 답: {user_choice}\n"
-                copy_text += f"\n해설:\n{q['explanation']}\n"
-                copy_text += f"\n위 문제와 해설에 대해 더 자세히 설명해주세요."
-                
-                # Show copy button directly (collapsed by default)
-                st.markdown("##### 📋 GPT에 질문하기")
-                st.caption("아래 코드 블록 우측 상단의 복사 버튼을 클릭하여 ChatGPT에 붙여넣으세요.")
-                st.code(copy_text, language=None)
+                    for opt in q['options']:
+                        copy_text += f"{opt['code']}. {get_bilingual_opt(opt['text'])}\n"
+                    
+                    copy_text += f"\n정답: {correct_choice}\n"
+                    copy_text += f"내 답: {user_choice}\n"
+                    copy_text += f"\n해설:\n{q['explanation']}\n"
+                    copy_text += f"\n위 문제와 해설에 대해 더 자세히 설명해주세요."
+                    
+                    st.code(copy_text, language=None)
+                    st.caption("💡 위 텍스트를 선택하여 복사한 후 ChatGPT에 붙여넣으세요.")
             
             # Navigation buttons
             st.write("---")
