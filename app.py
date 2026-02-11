@@ -344,7 +344,7 @@ if questions:
             
             # Show image if exists
             if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
-                st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", use_container_width=True)
+                st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width="stretch")
             
             # Format options for display
             options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
@@ -458,7 +458,7 @@ if questions:
                     
                     # Show image if exists (only for version 1 usually, but generic-safe)
                     if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
-                        st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", use_container_width=True)
+                        st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width="stretch")
                     
                     # Format options for display
                     options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
@@ -519,7 +519,7 @@ if questions:
                 
                 # Show image if exists
                 if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
-                    st.image(IMAGES[q['id']], use_container_width=True)
+                    st.image(IMAGES[q['id']], width="stretch")
 
                 # Display options
                 for opt in q['options']:
