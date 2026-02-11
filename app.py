@@ -189,6 +189,21 @@ EXAM_VERSIONS = {
         "file": os.path.join(BASE_DIR, "scenario_exam_data.json"),
         "has_bilingual": False,
         "title": "🌪️ Advanced Scenario Mock Exam"
+    },
+    "버전 4: 샘플 시험 Set 1 (50문항)": {
+        "file": os.path.join(BASE_DIR, "sample_exam_set1.json"),
+        "has_bilingual": False,
+        "title": "📚 Sample Exam Set 1"
+    },
+    "버전 5: 샘플 시험 Set 2 (50문항)": {
+        "file": os.path.join(BASE_DIR, "sample_exam_set2.json"),
+        "has_bilingual": False,
+        "title": "📚 Sample Exam Set 2"
+    },
+    "버전 6: 샘플 시험 Set 3 (50문항)": {
+        "file": os.path.join(BASE_DIR, "sample_exam_set3.json"),
+        "has_bilingual": False,
+        "title": "📚 Sample Exam Set 3"
     }
 }
 

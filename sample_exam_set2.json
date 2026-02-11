@@ -1,0 +1,1202 @@
+[
+  {
+    "id": "1",
+    "question": "** 4-Layer Canvas 아키텍처 원칙에 따라, **End-User** 레이어에 속한 모듈이 참조하면 **안 되는** 레이어는 무엇입니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Core Layer"
+      },
+      {
+        "code": "B",
+        "text": "Foundation Layer"
+      },
+      {
+        "code": "C",
+        "text": "Orchestration Layer"
+      },
+      {
+        "code": "D",
+        "text": "다른 End-User Layer (Side Reference)"
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "**Orchestration Layer**는 최상위 레이어입니다. **End-User** 레이어 모듈이 상위 레이어를 참조하는 것은 \"Upward Reference\"로, 아키텍처 원칙에 어긋납니다."
+  },
+  {
+    "id": "2",
+    "question": "** 두 모듈 A와 B가 서로를 참조하는 **Circular Dependency(순환 참조)**가 발생했습니다. 이를 해결하기 위한 가장 올바른 아키텍처 패턴은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "두 모듈을 하나로 합친다 (Merge)."
+      },
+      {
+        "code": "B",
+        "text": "공통된 기능을 추출하여 새로운 하위 레이어(Core 또는 Foundation) 모듈 C로 옮기고, A와 B가 C를 참조하게 한다."
+      },
+      {
+        "code": "C",
+        "text": "참조를 Weak Reference로 변경한다."
+      },
+      {
+        "code": "D",
+        "text": "Service Action을 사용하여 참조를 끊는다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "순환 참조(A↔B) 해결의 정석은 공통 기능을 추출하여 **하위 레이어(Core/Foundation)** 모듈로 옮기고 양쪽에서 이를 참조하게 하는 것입니다."
+  },
+  {
+    "id": "3",
+    "question": "** **Service Action**과 **Server Action**의 가장 큰 차이점 중, 배포(Deployment) 관점에서의 차이는?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Service Action은 Consumer 모듈을 다시 컴파일(Republish)할 필요 없이 갱신될 수 있다 (Weak Dependency)."
+      },
+      {
+        "code": "B",
+        "text": "Service Action은 데이터베이스 트랜잭션을 공유한다."
+      },
+      {
+        "code": "C",
+        "text": "Server Action은 REST API로 노출된다."
+      },
+      {
+        "code": "D",
+        "text": "차이가 없다."
+      }
+    ],
+    "answer_code": "A",
+    "explanation": "**Service Action**은 Weak Dependency를 가집니다. 따라서 인터페이스가 변경되지 않는 한, 로직 수정 후 배포해도 참조하는 모듈을 다시 배포할 필요가 없습니다."
+  },
+  {
+    "id": "4",
+    "question": "** **Core** 레이어에 위치한 모듈의 성격으로 가장 적절한 것은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "외부 시스템과의 연동(Connectors)을 담당한다."
+      },
+      {
+        "code": "B",
+        "text": "비즈니스 로직, 데이터(Entity), 비즈니스와 관련된 재사용 가능한 블록을 포함한다."
+      },
+      {
+        "code": "C",
+        "text": "특정 화면(Screen)과 사용자 인터랙션을 담당한다."
+      },
+      {
+        "code": "D",
+        "text": "로그인 페이지나 테마(Theme)를 관리한다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "**Core Layer**는 비즈니스 로직, 엔티티, 재사용 가능한 비즈니스 UI 블록 등을 포함하는 핵심 계층입니다."
+  },
+  {
+    "id": "5",
+    "question": "** 어떤 Action의 `Public` 속성을 **Yes**로 설정했습니다. 이 Action을 다른 모듈에서 사용할 때 제한사항은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Input Parameter로 Entity 레코드를 받을 수 없다."
+      },
+      {
+        "code": "B",
+        "text": "Output Parameter로 List 타입을 반환할 수 없다."
+      },
+      {
+        "code": "C",
+        "text": "데이터베이스 트랜잭션을 제어할 수 없다."
+      },
+      {
+        "code": "D",
+        "text": "제한사항은 없다."
+      }
+    ],
+    "answer_code": "D",
+    "explanation": "Public Server Action은 다른 모듈에서 사용 시 특별한 데이터 타입 제한이 없습니다. (단, Service Action은 트랜잭션 공유 제한이 있음)"
+  },
+  {
+    "id": "6",
+    "question": "** Aggregate에서 **Group By**를 사용하여 `DepartmentId`별로 직원을 그룹화했습니다. 이 Aggregate의 Output List인 `Current` 레코드에 접근할 때 사용할 수 **없는** 속성은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "DepartmentId (그룹화 기준 키)"
+      },
+      {
+        "code": "B",
+        "text": "Count (집계 함수 결과)"
+      },
+      {
+        "code": "C",
+        "text": "Employee.Name (그룹화되지 않은 개별 속성)"
+      },
+      {
+        "code": "D",
+        "text": "Sum (만약 집계 함수를 썼다면)"
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "**Group By**를 적용하면 결과 리스트에는 그룹화된 기준 속성과 집계 결과(Count, Sum 등)만 남으며, 그룹화되지 않은 개별 속성()은 접근할 수 없습니다."
+  },
+  {
+    "id": "7",
+    "question": "** 대량의 데이터를 처리하기 위해 **SQL Widget** (Advanced SQL)을 사용하려 합니다. `Expand Inline` 파라미터를 사용할 때 주의해야 할 점은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "쿼리 성능이 저하된다."
+      },
+      {
+        "code": "B",
+        "text": "SQL Injection 공격에 노출될 수 있으므로 `EncodeSql()` 함수를 반드시 사용해야 한다."
+      },
+      {
+        "code": "C",
+        "text": "결과 구조(Structure)를 정의할 필요가 없다."
+      },
+      {
+        "code": "D",
+        "text": "Output Parameter를 하나만 가질 수 있다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "`Expand Inline` 파라미터는 SQL문에 직접 삽입되므로 **SQL Injection** 위험이 큽니다. 반드시 `EncodeSql()` 함수를 사용해야 합니다."
+  },
+  {
+    "id": "8",
+    "question": "** Entity 속성에 **Index**를 추가했습니다. 이에 대한 설명으로 **틀린** 것은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "데이터 조회(Select) 속도가 빨라진다."
+      },
+      {
+        "code": "B",
+        "text": "데이터 생성(Create) 및 수정(Update) 속도가 느려질 수 있다."
+      },
+      {
+        "code": "C",
+        "text": "Unique Index를 설정하면 중복 데이터를 방지할 수 있다."
+      },
+      {
+        "code": "D",
+        "text": "Index는 많으면 많을수록 애플리케이션 전체 성능에 무조건 좋다."
+      }
+    ],
+    "answer_code": "D",
+    "explanation": "인덱스는 조회 속도를 높이지만, 생성/수정 시 인덱스 테이블도 갱신해야 하므로 쓰기 성능을 저하시킬 수 있습니다. 따라서 무분별하게 많이 만드는 것은 좋지 않습니다."
+  },
+  {
+    "id": "9",
+    "question": "** **Aggregate**와 **Data Action** 중, 화면에 데이터를 표시하기 위해 **Data Action**을 반드시 사용해야 하는 경우는?",
+    "options": [
+      {
+        "code": "A",
+        "text": "두 개의 Entity를 Join해야 할 때"
+      },
+      {
+        "code": "B",
+        "text": "데이터를 정렬(Sort)해야 할 때"
+      },
+      {
+        "code": "C",
+        "text": "SQL 쿼리 결과나 외부 REST API 결과를 받아와서 가공 후 화면에 뿌려야 할 때"
+      },
+      {
+        "code": "D",
+        "text": "페이징(Pagination) 처리를 해야 할 때"
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "외부 API 결과와 DB 데이터를 결합하는 등 **복잡한 가공**이 필요한 경우 Aggregate 대신 **Data Action**을 사용해야 합니다."
+  },
+  {
+    "id": "10",
+    "question": "** `GetOrders` Aggregate의 `MaxRecords` 속성을 50으로 설정했습니다. 하지만 DB에는 100개의 데이터가 있습니다. `GetOrders.Count`와 `GetOrders.List.Length`의 값은 각각 무엇입니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Count: 50, Length: 50"
+      },
+      {
+        "code": "B",
+        "text": "Count: 100 (전체 개수), Length: 50 (가져온 개수)"
+      },
+      {
+        "code": "C",
+        "text": "Count: 100, Length: 100"
+      },
+      {
+        "code": "D",
+        "text": "Count: 50, Length: 100"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "`Count`는 전체 데이터 개수(), `Length`는 `MaxRecords` 설정에 따라 실제 가져온 개수()를 나타냅니다."
+  },
+  {
+    "id": "11",
+    "question": "** Static Entity `Status`가 있습니다. 개발 환경(Development)에서 레코드를 추가하고 Production으로 배포했습니다. Production DB에서 이 Static Entity의 `Id` 값은 어떻게 됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "배포 시마다 랜덤하게 바뀐다."
+      },
+      {
+        "code": "B",
+        "text": "환경이 달라도 동일한 Id(GUID 또는 Integer)를 유지한다."
+      },
+      {
+        "code": "C",
+        "text": "Production DB의 Auto Number 규칙을 따른다."
+      },
+      {
+        "code": "D",
+        "text": "개발자가 수동으로 매핑해야 한다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "**Static Entity**는 환경(Dev, Prod) 간에 동일한 **Identifier(Id)**를 보장하기 위해 사용합니다."
+  },
+  {
+    "id": "12",
+    "question": "** **Timer**를 사용하여 매일 밤 데이터를 집계하려 합니다. Timer의 기본 타임아웃(Timeout) 시간은 얼마이며, 이 시간이 지나면 어떻게 됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "10분, 에러를 내고 중단된다."
+      },
+      {
+        "code": "B",
+        "text": "20분, 작업이 중단되고 스케줄러가 재시도를 결정한다."
+      },
+      {
+        "code": "C",
+        "text": "60분, 다음 날 다시 실행된다."
+      },
+      {
+        "code": "D",
+        "text": "무제한, 끝날 때까지 실행된다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "**Timer**의 기본 타임아웃 시간은 **20분**입니다."
+  },
+  {
+    "id": "13",
+    "question": "** **Timer** 로직 내에서 `CommitTransaction` 액션을 명시적으로 호출하는 이유는 무엇입니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "트랜잭션 로그가 꽉 차는 것을 방지하고, 중간 결과를 저장하여 타임아웃 시 재처리를 용이하게 하기 위해."
+      },
+      {
+        "code": "B",
+        "text": "Timer는 기본적으로 트랜잭션을 지원하지 않으므로."
+      },
+      {
+        "code": "C",
+        "text": "다른 사용자가 데이터를 수정하지 못하게 Lock을 걸기 위해."
+      },
+      {
+        "code": "D",
+        "text": "속도를 빠르게 하기 위해."
+      }
+    ],
+    "answer_code": "A",
+    "explanation": "대량 처리 시 `CommitTransaction`을 호출하면 트랜잭션 로그 포화를 막고, 타임아웃 발생 시 이미 처리된 부분은 저장되어 재처리가 효율적입니다."
+  },
+  {
+    "id": "14",
+    "question": "** **Process (BPT)**를 사용하여 주문 승인 프로세스를 만들었습니다. 프로세스가 `Automatic Activity`를 실행하는 도중 에러가 발생하면 OutSystems는 어떻게 처리합니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "프로세스를 즉시 종료(Terminate)한다."
+      },
+      {
+        "code": "B",
+        "text": "관리자에게 이메일을 보낸다."
+      },
+      {
+        "code": "C",
+        "text": "일정 시간 후에 자동으로 재시도(Retry) 한다."
+      },
+      {
+        "code": "D",
+        "text": "해당 Activity를 건너뛰고 다음 단계로 간다."
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "**BPT**의 Automatic Activity에서 에러 발생 시, 시스템은 일정 대기 후 **자동으로 재시도(Retry)**를 수행합니다."
+  },
+  {
+    "id": "15",
+    "question": "** 화면에서 버튼을 눌러 **BPT Process**를 시작하려고 합니다. 어떤 액션을 사용해야 합니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Process Launch Action"
+      },
+      {
+        "code": "B",
+        "text": "Entity Create Action"
+      },
+      {
+        "code": "C",
+        "text": "Timer Run Action"
+      },
+      {
+        "code": "D",
+        "text": "Aggregate Refresh"
+      }
+    ],
+    "answer_code": "A",
+    "explanation": "프로세스를 명시적으로 시작하려면 **Process Launch Action**을 사용합니다."
+  },
+  {
+    "id": "16",
+    "question": "** **Client Action** A가 **Server Action** B를 호출합니다. B에서 예외(Exception)가 발생하여 `Abort Transaction` 옵션이 켜진 상태로 예외를 던졌습니다. A에서 수행했던 클라이언트 측 변수 변경 사항은 어떻게 됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "롤백된다 (원래 값으로 돌아감)."
+      },
+      {
+        "code": "B",
+        "text": "유지된다 (클라이언트 메모리 변경은 DB 트랜잭션과 무관함)."
+      },
+      {
+        "code": "C",
+        "text": "애플리케이션이 재시작된다."
+      },
+      {
+        "code": "D",
+        "text": "브라우저가 새로고침된다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "서버 트랜잭션 롤백은 DB에만 영향을 주며, 브라우저 메모리에 있는 **클라이언트 변수값**은 원래대로 돌아가지 않고 유지됩니다."
+  },
+  {
+    "id": "17",
+    "question": "** **For Each** 루프 내에서 대량의 데이터를 **Create** 하는 로직이 있습니다. 퍼포먼스 최적화를 위해 가장 권장되는 방법은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "루프 내에서 CreateEntity 액션을 계속 호출한다."
+      },
+      {
+        "code": "B",
+        "text": "가능한 한 클라이언트 사이드에서 처리한다."
+      },
+      {
+        "code": "C",
+        "text": "리스트 전체를 JSON으로 변환하여 SQL(Bulk Insert)로 한 번에 처리하거나, 별도의 Bulk 액션을 만든다."
+      },
+      {
+        "code": "D",
+        "text": "Timer를 사용하여 하나씩 처리한다."
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "루프 내에서 개별 `Create` 호출은 느립니다. **SQL Bulk Insert** 등을 사용하는 것이 성능상 최적입니다."
+  },
+  {
+    "id": "18",
+    "question": "** 특정 Screen의 `Roles` 탭에서 **Registered** 체크박스를 해제하고, 커스텀 역할인 **Manager**만 체크했습니다. 로그인하지 않은(Anonymous) 사용자가 이 화면 URL로 접근하면 어떻게 됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "404 Not Found 에러가 뜬다."
+      },
+      {
+        "code": "B",
+        "text": "\"Access Denied\" 메시지가 뜬다."
+      },
+      {
+        "code": "C",
+        "text": "로그인 화면(Login Screen)으로 리다이렉트 된다."
+      },
+      {
+        "code": "D",
+        "text": "빈 화면이 나온다."
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "권한이 없는 화면에 익명 사용자가 접근하면 시스템은 자동으로 **로그인 화면**으로 리다이렉트합니다."
+  },
+  {
+    "id": "19",
+    "question": "** **Internal Access Only** 설정을 모듈 전체에 적용했습니다. 이 설정의 효과는?",
+    "options": [
+      {
+        "code": "A",
+        "text": "오직 개발자만 접속할 수 있다."
+      },
+      {
+        "code": "B",
+        "text": "인트라넷(사내 네트워크) 또는 VPN을 통한 IP 대역에서만 애플리케이션에 접근할 수 있다."
+      },
+      {
+        "code": "C",
+        "text": "HTTPS만 허용한다."
+      },
+      {
+        "code": "D",
+        "text": "데이터베이스에 대한 접근을 차단한다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "`Internal Access Only`는 지정된 **IP 대역** 내에서만 접근을 허용하는 보안 설정입니다."
+  },
+  {
+    "id": "20",
+    "question": "** **CheckRole** 함수(예: `CheckManagerRole(UserId)`)는 어디에서 사용할 수 있습니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "오직 Server Side 로직에서만 사용 가능하다."
+      },
+      {
+        "code": "B",
+        "text": "오직 Client Side 로직에서만 사용 가능하다."
+      },
+      {
+        "code": "C",
+        "text": "Client Side와 Server Side 모두 사용 가능하다."
+      },
+      {
+        "code": "D",
+        "text": "Screen의 Visible 속성에서만 사용 가능하다."
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "`CheckRole` 함수는 클라이언트와 서버 사이드 로직 **모두**에서 사용 가능합니다."
+  },
+  {
+    "id": "21",
+    "question": "** 사용자의 비밀번호를 변경하는 로직을 구현 중입니다. 현재 로그인한 사용자의 ID를 얻기 위해 가장 안전하고 권장되는 방법은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "화면의 Input Parameter로 UserId를 받는다."
+      },
+      {
+        "code": "B",
+        "text": "`GetUserId()` 시스템 함수(Session 값)를 사용한다."
+      },
+      {
+        "code": "C",
+        "text": "Client Variable에 저장된 UserId를 사용한다."
+      },
+      {
+        "code": "D",
+        "text": "URL 쿼리 스트링에서 UserId를 가져온다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "현재 로그인한 사용자의 ID는 세션에서 관리하는 `GetUserId()` 함수를 통해 가져오는 것이 가장 안전합니다."
+  },
+  {
+    "id": "22",
+    "question": "** **Block** 내부에 있는 **Placeholder**의 역할은 무엇입니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "이미지를 넣는 공간이다."
+      },
+      {
+        "code": "B",
+        "text": "Block을 사용하는 부모 화면(Parent)에서 동적으로 콘텐츠(위젯 등)를 채워 넣을 수 있는 영역이다."
+      },
+      {
+        "code": "C",
+        "text": "자바스크립트 코드를 넣는 곳이다."
+      },
+      {
+        "code": "D",
+        "text": "변수를 선언하는 곳이다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "**Placeholder**는 부모 화면에서 블록 내부의 특정 영역에 원하는 콘텐츠를 동적으로 채울 수 있게 해줍니다."
+  },
+  {
+    "id": "23",
+    "question": "** 화면의 `OnReady` 이벤트 핸들러는 언제 실행됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "화면의 DOM이 완전히 생성되고 준비되었을 때."
+      },
+      {
+        "code": "B",
+        "text": "데이터를 가져오기 시작할 때."
+      },
+      {
+        "code": "C",
+        "text": "화면이 파괴(Destroy)될 때."
+      },
+      {
+        "code": "D",
+        "text": "HTML이 렌더링되기 전."
+      }
+    ],
+    "answer_code": "A",
+    "explanation": "`OnReady`는 화면의 **DOM 요소가 생성 완료**된 직후에 실행됩니다."
+  },
+  {
+    "id": "24",
+    "question": "** **Dropdown** 위젯의 `Empty Text` 속성은 언제 화면에 표시됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "리스트가 비어있을 때."
+      },
+      {
+        "code": "B",
+        "text": "연결된 변수의 값이 NullIdentifier() 이거나 리스트에 없는 값일 때."
+      },
+      {
+        "code": "C",
+        "text": "사용자가 드롭다운을 클릭했을 때."
+      },
+      {
+        "code": "D",
+        "text": "항상 표시된다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "`Empty Text`는 변수값이 **Null**이거나 유효하지 않을 때 드롭다운에 표시되는 기본 문구입니다."
+  },
+  {
+    "id": "25",
+    "question": "** 리스트(List) 위젯에서 특정 항목을 스와이프(Swipe)하여 삭제하는 기능을 구현하려 합니다. 이때 사용해야 하는 OutSystems UI 패턴은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "List Item"
+      },
+      {
+        "code": "B",
+        "text": "List Action"
+      },
+      {
+        "code": "C",
+        "text": "Swipe Events"
+      },
+      {
+        "code": "D",
+        "text": "Touch Events"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "옆으로 밀어서 버튼을 표시하는 기능은 OutSystems UI의 **List Action** 패턴입니다."
+  },
+  {
+    "id": "26",
+    "question": "** [Arch] `Public = Yes`인 Server Action의 Input Parameter 데이터 타입을 변경했습니다 (예: Integer -> Text). Consumer 모듈에 발생하는 영향은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "영향 없음."
+      },
+      {
+        "code": "B",
+        "text": "Consumer 모듈에서 Warning이 발생하지만 실행은 된다."
+      },
+      {
+        "code": "C",
+        "text": "Consumer 모듈이 컴파일 에러(Broken Reference) 상태가 되어, Refresh Reference 및 수정 후 다시 배포해야 한다."
+      },
+      {
+        "code": "D",
+        "text": "런타임 에러가 발생한다."
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "Strong Reference인 Server Action의 파라미터 변경은 참조 중인 모듈에 **컴파일 에러**를 유발합니다."
+  },
+  {
+    "id": "27",
+    "question": "** [Data] Entity 속성의 `Is Auto Number`를 **Yes**로 설정할 수 있는 데이터 타입은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Text"
+      },
+      {
+        "code": "B",
+        "text": "Integer (Long Integer 포함)"
+      },
+      {
+        "code": "C",
+        "text": "Decimal"
+      },
+      {
+        "code": "D",
+        "text": "Date Time"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "`Is Auto Number`는 **Integer** 계열 데이터 타입에서만 설정 가능합니다."
+  },
+  {
+    "id": "28",
+    "question": "** [Logic] `User` 엔티티를 확장하여 `UserProfile` 엔티티를 만들었습니다 (1:1 관계). `User`가 생성될 때 `UserProfile`도 자동으로 생성되게 하려면?",
+    "options": [
+      {
+        "code": "A",
+        "text": "DB 트리거를 만든다."
+      },
+      {
+        "code": "B",
+        "text": "`User` 엔티티의 `CreateUser` 액션을 감싸는(Wrapper) Server Action을 만들고, 그 안에서 `CreateUserProfile`을 연달아 호출한다."
+      },
+      {
+        "code": "C",
+        "text": "`User` 엔티티의 OnCreate 이벤트를 사용한다."
+      },
+      {
+        "code": "D",
+        "text": "불가능하다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "1:1 관계의 자동 생성은 **Wrapper Action** 패턴을 통해 하나의 트랜잭션으로 묶어 처리하는 것이 정석입니다."
+  },
+  {
+    "id": "29",
+    "question": "** [Debugging] 프로덕션 환경에서 발생한 에러 로그를 확인하기 위해 가장 먼저 확인해야 할 곳은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Service Studio"
+      },
+      {
+        "code": "B",
+        "text": "Service Center (Monitoring 탭)"
+      },
+      {
+        "code": "C",
+        "text": "Integration Studio"
+      },
+      {
+        "code": "D",
+        "text": "LifeTime"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "에러 로그 및 모니터링은 **Service Center**의 Monitoring 탭에서 확인합니다."
+  },
+  {
+    "id": "30",
+    "question": "** [Async] 사용자가 버튼을 클릭하면 PDF 리포트를 생성해서 이메일로 보내야 합니다. PDF 생성은 30초 이상 걸릴 수 있습니다. 사용자 경험(UX)을 해치지 않는 가장 좋은 구현 방법은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Server Action에서 PDF를 만들고 이메일을 보낸 뒤 화면에 알림을 띄운다."
+      },
+      {
+        "code": "B",
+        "text": "Process(BPT) 또는 Timer를 기동(Wake)시키고, 사용자에게는 \"요청되었습니다\"라고 즉시 응답한다."
+      },
+      {
+        "code": "C",
+        "text": "Client Action에서 자바스크립트로 PDF를 만든다."
+      },
+      {
+        "code": "D",
+        "text": "Data Action을 사용한다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "오래 걸리는 작업은 **비동기(BPT/Timer)**로 넘겨 UX를 개선하는 것이 좋습니다."
+  },
+  {
+    "id": "31",
+    "question": "[UI]** 리스트에서 특정 항목을 클릭했을 때 해당 항목의 상세 페이지로 이동하며 `EmployeeId`를 전달하려고 합니다. 이때 가장 적절한 위젯은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Form"
+      },
+      {
+        "code": "B",
+        "text": "Link"
+      },
+      {
+        "code": "C",
+        "text": "Container"
+      },
+      {
+        "code": "D",
+        "text": "Label"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "화면 이동과 데이터 전달은 **Link** 위젯을 통해 수행합니다."
+  },
+  {
+    "id": "32",
+    "question": "[Logic]** Client Action에서 자바스크립트(JavaScript) 노드를 사용할 때, 자바스크립트 안에서 OutSystems의 로컬 변수값을 수정하려면 어떻게 해야 합니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "자바스크립트 코드 내에서 직접 변수명을 호출한다."
+      },
+      {
+        "code": "B",
+        "text": "자바스크립트 노드의 Input/Output Parameter를 정의하여 매핑한다."
+      },
+      {
+        "code": "C",
+        "text": "Client Variable을 사용한다."
+      },
+      {
+        "code": "D",
+        "text": "수정이 불가능하다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "JS 노드 내외부의 값 교환은 노드의 **Input/Output Parameter**를 통해 매핑합니다."
+  },
+  {
+    "id": "33",
+    "question": "[Data]** `Aggregate`에서 특정 컬럼을 기준으로 내림차순(Descending) 정렬을 설정하는 방법은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Filter 탭에서 `Order By` 문구 작성"
+      },
+      {
+        "code": "B",
+        "text": "Sorting 탭에서 해당 속성을 추가하고 방향을 설정"
+      },
+      {
+        "code": "C",
+        "text": "전용 SQL 위젯 사용"
+      },
+      {
+        "code": "D",
+        "text": "Local Variable에 정렬 순서를 저장"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "Aggregate 결과 정렬은 **Sorting 탭**에서 속성을 추가하여 설정합니다."
+  },
+  {
+    "id": "34",
+    "question": "[Lifecycle]** 사용자가 화면의 입력 필드에 값을 입력할 때마다 즉시 유효성 검사를 수행하고 싶습니다. 어떤 이벤트를 사용해야 합니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "On Ready"
+      },
+      {
+        "code": "B",
+        "text": "On Render"
+      },
+      {
+        "code": "C",
+        "text": "Input 위젯의 On Change"
+      },
+      {
+        "code": "D",
+        "text": "On Initialize"
+      }
+    ],
+    "answer_code": "C",
+    "explanation": "입력 시 즉시 반응하려면 Input 위젯의 **On Change** 이벤트를 사용합니다."
+  },
+  {
+    "id": "35",
+    "question": "[Security]** 애플리케이션의 특정 기능을 특정 시간(예: 점검 시간)에만 차단하려고 합니다. 이때 사용하기 가장 적합한 것은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Role"
+      },
+      {
+        "code": "B",
+        "text": "Site Property"
+      },
+      {
+        "code": "C",
+        "text": "Client Variable"
+      },
+      {
+        "code": "D",
+        "text": "Static Entity"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "**Site Property**는 런타임에 값을 변경하여 애플리케이션의 동작(예: 점검 모드)을 제어하기에 적합합니다."
+  },
+  {
+    "id": "36",
+    "question": "[Logic]** `Switch` 위젯에서 `Default` 분기(Condition이 없는 경로)는 언제 실행됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "항상 마지막에 실행된다."
+      },
+      {
+        "code": "B",
+        "text": "연결된 모든 다른 분기의 조건이 False일 때 실행된다."
+      },
+      {
+        "code": "C",
+        "text": "에러가 발생했을 때 실행된다."
+      },
+      {
+        "code": "D",
+        "text": "수동으로 실행시켜야 한다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "**Otherwise(Default)** 경로는 모든 조건이 일치하지 않을 때 실행됩니다."
+  },
+  {
+    "id": "37",
+    "question": "[UI]** `Form` 위젯 내부에 있는 `Input` 위젯의 `Variable` 속성에는 무엇을 연결해야 합니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "화면의 Input Parameter"
+      },
+      {
+        "code": "B",
+        "text": "데이터를 저장할 변수 (예: GetEmployee.List.Current.Name)"
+      },
+      {
+        "code": "C",
+        "text": "버튼의 액션 이름"
+      },
+      {
+        "code": "D",
+        "text": "엔티티 이름 자체"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "Input 위젯의 `Variable` 속성에는 입력 데이터를 저장할 **변수**를 연결해야 합니다."
+  },
+  {
+    "id": "38",
+    "question": "[Data]** `Structure`와 `Entity`의 결정적인 차이점은 무엇입니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Structure는 데이터베이스에 테이블로 생성되지 않는다."
+      },
+      {
+        "code": "B",
+        "text": "Entity는 복합 데이터 타입을 가질 수 있다."
+      },
+      {
+        "code": "C",
+        "text": "Structure는 CRUD 액션을 자동으로 생성한다."
+      },
+      {
+        "code": "D",
+        "text": "차이가 없다."
+      }
+    ],
+    "answer_code": "A",
+    "explanation": "**Structure**는 메모리 상의 데이터 틀일 뿐, DB 테이블을 생성하지 않습니다."
+  },
+  {
+    "id": "39",
+    "question": "[Exception]** `All Exceptions` 핸들러가 잡지 **못하는** 에러는 무엇입니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Database Exception"
+      },
+      {
+        "code": "B",
+        "text": "Security Exception"
+      },
+      {
+        "code": "C",
+        "text": "Communication Exception"
+      },
+      {
+        "code": "D",
+        "text": "All Exceptions는 모든 에러를 잡을 수 있다."
+      }
+    ],
+    "answer_code": "D",
+    "explanation": "`All Exceptions`는 이름 그대로 모든 유형의 예외를 처리할 수 있는 최상위 핸들러입니다."
+  },
+  {
+    "id": "40",
+    "question": "[Logic]** `Server Action`을 `Public = Yes`로 설정했을 때, 다른 모듈에서 이 액션을 호출하면 트랜잭션은 어떻게 관리됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "별도의 트랜잭션으로 실행된다."
+      },
+      {
+        "code": "B",
+        "text": "호출한 모듈(Consumer)의 트랜잭션에 포함된다."
+      },
+      {
+        "code": "C",
+        "text": "트랜잭션이 생성되지 않는다."
+      },
+      {
+        "code": "D",
+        "text": "호출 시마다 커밋된다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "Public Server Action 호출 시 별도 설정이 없다면 호출자의 **트랜잭션에 포함**됩니다."
+  },
+  {
+    "id": "41",
+    "question": "[UI]** 모바일 화면에서 `Pull to Refresh` 기능을 구현하려면 무엇을 설정해야 합니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "자바스크립트 작성"
+      },
+      {
+        "code": "B",
+        "text": "Screen의 On Pull to Refresh 이벤트 핸들러 구현"
+      },
+      {
+        "code": "C",
+        "text": "전용 플러그인 설치"
+      },
+      {
+        "code": "D",
+        "text": "Timer 설정"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "Reactive Web은 화면 이벤트 핸들러인 **On Pull to Refresh**를 통해 해당 기능을 구현합니다."
+  },
+  {
+    "id": "42",
+    "question": "[Data]** `Delete Rule`이 `Ignore`인 경우의 위험성은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "부모 레코드가 삭제되어도 자식 레코드가 남아 '고아 데이터'가 발생한다."
+      },
+      {
+        "code": "B",
+        "text": "삭제 속도가 너무 느려진다."
+      },
+      {
+        "code": "C",
+        "text": "데이터베이스가 꽉 찬다."
+      },
+      {
+        "code": "D",
+        "text": "삭제가 아예 되지 않는다."
+      }
+    ],
+    "answer_code": "A",
+    "explanation": "`Ignore` 규칙은 부모 삭제를 허용하지만 자식 데이터를 남겨두므로 **고아 데이터** 문제를 야기합니다."
+  },
+  {
+    "id": "43",
+    "question": "[Logic]** `Client Action`에서 다른 `Client Action`을 호출할 때의 특징은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "서버 통신이 발생한다."
+      },
+      {
+        "code": "B",
+        "text": "동기(Synchronous) 방식으로 실행된다."
+      },
+      {
+        "code": "C",
+        "text": "항상 비동기로 실행된다."
+      },
+      {
+        "code": "D",
+        "text": "최대 1개만 호출 가능하다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "Client Action 간의 호출은 별도의 서버 통신 없이 브라우저 내에서 **동기적**으로 실행됩니다."
+  },
+  {
+    "id": "44",
+    "question": "[Security]** 특정 Role을 가진 사용자에게만 특정 메뉴 아이템을 보여주기 위해 사용하는 UI 위젯은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Container"
+      },
+      {
+        "code": "B",
+        "text": "If"
+      },
+      {
+        "code": "C",
+        "text": "Switch"
+      },
+      {
+        "code": "D",
+        "text": "Block"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "조건부 UI 노출(권한 확인 등)에는 **If 위젯**이 가장 적합합니다."
+  },
+  {
+    "id": "45",
+    "question": "[Lifecycle]** 화면에서 데이터를 Fetch 하는 동안 로딩 애니메이션을 보여주고 싶습니다. 어떤 속성을 체크해야 합니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Aggregate의 `IsDataFetched`"
+      },
+      {
+        "code": "B",
+        "text": "Screen의 `OnReady`"
+      },
+      {
+        "code": "C",
+        "text": "`IsLoading` 시스템 변수"
+      },
+      {
+        "code": "D",
+        "text": "`CheckRole` 함수"
+      }
+    ],
+    "answer_code": "A",
+    "explanation": "데이터 로딩 상태 확인은 Aggregate의 `IsDataFetched` 속성을 활용합니다."
+  },
+  {
+    "id": "46",
+    "question": "[Arch]** **Foundation Layer**에 들어가기 가장 적합한 모듈은?",
+    "options": [
+      {
+        "code": "A",
+        "text": "주문 관리 화면"
+      },
+      {
+        "code": "B",
+        "text": "ERP 시스템 연동 API (Connector)"
+      },
+      {
+        "code": "C",
+        "text": "사용자 승인 워크플로우"
+      },
+      {
+        "code": "D",
+        "text": "대시보드 리포트"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "외부 시스템 연동(Connector)은 재사용성을 위해 **Foundation Layer**에 위치시킵니다."
+  },
+  {
+    "id": "47",
+    "question": "[Data]** `Aggregate`에서 여러 엔티티를 조인할 때, `Only With` 조인은 SQL의 무엇과 같습니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "Left Join"
+      },
+      {
+        "code": "B",
+        "text": "Inner Join"
+      },
+      {
+        "code": "C",
+        "text": "Full Join"
+      },
+      {
+        "code": "D",
+        "text": "Cross Join"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "`Only With`는 두 테이블 모두에 값이 있는 경우만 가져오는 **Inner Join**입니다."
+  },
+  {
+    "id": "48",
+    "question": "[Logic]** `Server Action`에서 `Raise Exception`을 수행하면 그 이후의 로직은 어떻게 됩니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "정상적으로 계속 실행된다."
+      },
+      {
+        "code": "B",
+        "text": "즉시 중단되고 가장 가까운 Exception Handler로 이동한다."
+      },
+      {
+        "code": "C",
+        "text": "에러 메시지만 출력하고 계속 실행된다."
+      },
+      {
+        "code": "D",
+        "text": "화면이 새로고침된다."
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "`Raise Exception` 발생 시 즉시 실행이 중단되고 해당 예외를 처리할 **핸들러**로 점프합니다."
+  },
+  {
+    "id": "49",
+    "question": "[UI]** `Dropdown` 위젯에서 사용자가 아무것도 선택하지 않았을 때의 기본값(Id)은 무엇입니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "0"
+      },
+      {
+        "code": "B",
+        "text": "NullIdentifier()"
+      },
+      {
+        "code": "C",
+        "text": "\"\" (Empty Text)"
+      },
+      {
+        "code": "D",
+        "text": "-1"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "식별자(Id) 변수의 기본 초기값은 `NullIdentifier()`입니다."
+  },
+  {
+    "id": "50",
+    "question": "[Lifecycle]** `OnDestroy` 이벤트는 언제 사용합니까?",
+    "options": [
+      {
+        "code": "A",
+        "text": "화면이 처음 열릴 때"
+      },
+      {
+        "code": "B",
+        "text": "화면을 떠나거나(Navigate) 블록이 제거될 때 리소스를 정리하기 위해"
+      },
+      {
+        "code": "C",
+        "text": "데이터베이스 레코드를 삭제할 때"
+      },
+      {
+        "code": "D",
+        "text": "앱을 종료할 때"
+      }
+    ],
+    "answer_code": "B",
+    "explanation": "`OnDestroy`는 화면을 떠나거나 블록이 제거될 때 리소스를 해제하기 위해 사용합니다."
+  }
+]
