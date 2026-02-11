@@ -306,9 +306,38 @@ if questions:
             
             q = questions[idx]
             
-            # Progress indicator
-            st.progress((idx) / len(questions))
-            st.caption(f"Progress: {idx + 1} / {len(questions)}")
+            # Progress indicator with navigation
+            st.progress((idx + 1) / len(questions))
+            
+            # Question navigator
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                selected_q = st.slider(
+                    "문제 선택:",
+                    min_value=1,
+                    max_value=len(questions),
+                    value=idx + 1,
+                    key=f"question_slider_{idx}",
+                    help="슬라이더를 움직여 원하는 문제로 바로 이동하세요"
+                )
+                if selected_q != idx + 1:
+                    st.session_state.current_question_idx = selected_q - 1
+                    st.rerun()
+            
+            with col2:
+                # Quick jump input
+                jump_to = st.number_input(
+                    "바로가기:",
+                    min_value=1,
+                    max_value=len(questions),
+                    value=idx + 1,
+                    step=1,
+                    key=f"jump_input_{idx}",
+                    help="문제 번호를 입력하세요"
+                )
+                if jump_to != idx + 1:
+                    st.session_state.current_question_idx = jump_to - 1
+                    st.rerun()
             
             st.markdown(f"### 문제 {q['id']}")
             st.markdown(f"#### {get_bilingual_q(q['question'])}")
