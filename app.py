@@ -306,9 +306,6 @@ if questions:
             
             q = questions[idx]
             
-            # Progress indicator with navigation
-            st.progress((idx + 1) / len(questions))
-            
             # Question navigator
             col1, col2 = st.columns([3, 1])
             with col1:
@@ -402,6 +399,27 @@ if questions:
                 st.markdown("### 💡 해설")
                 st.info(q['explanation'])
                 
+                # Navigation buttons
+                st.write("---")
+                # Responsive button layout
+                col1, col2 = st.columns([1, 1], gap="small")
+                
+                with col1:
+                    if idx > 0:
+                        if st.button("⬅️ 이전 문제", use_container_width=True):
+                            st.session_state.current_question_idx -= 1
+                            st.rerun()
+                
+                with col2:
+                    if idx < len(questions) - 1:
+                        if st.button("다음 문제 ➡️", use_container_width=True):
+                            st.session_state.current_question_idx += 1
+                            st.rerun()
+                    else:
+                        if st.button("📊 전체 결과 보기", use_container_width=True, type="primary"):
+                            st.session_state.submitted = True
+                            st.rerun()
+                
                 # Copyable text section for GPT
                 st.write("---")
                 with st.expander("📋 복사용 텍스트 (GPT 추가 설명 요청용)", expanded=False):
@@ -421,27 +439,6 @@ if questions:
                     
                     st.code(copy_text, language=None)
                     st.caption("💡 위 텍스트를 선택하여 복사한 후 ChatGPT에 붙여넣으세요.")
-            
-            # Navigation buttons
-            st.write("---")
-            # Responsive button layout
-            col1, col2 = st.columns([1, 1], gap="small")
-            
-            with col1:
-                if idx > 0:
-                    if st.button("⬅️ 이전 문제", use_container_width=True):
-                        st.session_state.current_question_idx -= 1
-                        st.rerun()
-            
-            with col2:
-                if idx < len(questions) - 1:
-                    if st.button("다음 문제 ➡️", use_container_width=True):
-                        st.session_state.current_question_idx += 1
-                        st.rerun()
-                else:
-                    if st.button("📊 전체 결과 보기", use_container_width=True, type="primary"):
-                        st.session_state.submitted = True
-                        st.rerun()
             
             # Show answer status
             st.write("---")
