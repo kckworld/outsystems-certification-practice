@@ -3,6 +3,8 @@ import streamlit as st
 import json
 import os
 
+APP_VERSION = "v2026.02.20-1"
+
 # Set page config with mobile optimization
 st.set_page_config(
     page_title="OutSystems Certification Practice", 
@@ -15,6 +17,7 @@ st.set_page_config(
 )
 
 # Custom CSS for better aesthetics and mobile optimization
+st.markdown(f"<div style='text-align:right; font-size:0.8em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
 st.markdown("""
     <style>
     .main {
@@ -640,20 +643,21 @@ if questions:
                 st.info(q['explanation'])
         
         if st.button("Restart Quiz / 다시 풀기"):
-                    # 오답만 다시 풀기 버튼
-                    if len(wrong_questions) > 0:
-                    btn_disabled = len(wrong_questions) == 0
-                    if st.button("❗ 오답만 다시 풀기", disabled=btn_disabled):
-                        if btn_disabled:
-                            st.info("오답이 없으므로 다시 풀 문제가 없습니다.")
-                        else:
-                            st.session_state.quiz_mode = "오답 다시 풀기"
-                            st.session_state.wrong_questions = wrong_questions
-                            st.session_state.user_answers_wrong = {}
-                            st.session_state.current_wrong_idx = 0
-                            st.session_state.checked_wrong = {}
-                            st.session_state.submitted_wrong = False
-                            st.rerun()
+        # 오답만 다시 풀기 버튼 (항상 결과화면 하단에)
+        btn_disabled = len(wrong_questions) == 0
+        if st.button("❗ 오답만 다시 풀기", disabled=btn_disabled):
+            if btn_disabled:
+                st.info("오답이 없으므로 다시 풀 문제가 없습니다.")
+            else:
+                st.session_state.quiz_mode = "오답 다시 풀기"
+                st.session_state.wrong_questions = wrong_questions
+                st.session_state.user_answers_wrong = {}
+                st.session_state.current_wrong_idx = 0
+                st.session_state.checked_wrong = {}
+                st.session_state.submitted_wrong = False
+                st.rerun()
+
+        if st.button("Restart Quiz / 다시 풀기"):
             st.session_state.submitted = False
             st.session_state.user_answers = {}
             st.session_state.current_question_idx = 0
