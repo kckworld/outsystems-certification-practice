@@ -411,9 +411,8 @@ if questions:
                 st.session_state.current_question_idx = 0
                 st.session_state.checked_questions = {}
                 st.rerun()
-        return
     # 기존 전체/한 문제씩 모드
-    if not st.session_state.submitted:
+    elif not st.session_state.submitted:
         # Check quiz mode
         if st.session_state.quiz_mode == "한 문제씩 풀기":
             # Single Question Mode
