@@ -664,16 +664,13 @@ if questions:
         # 오답만 다시 풀기 버튼 (항상 결과화면 하단에)
         btn_disabled = len(wrong_questions) == 0
         if st.button("❗ 오답만 다시 풀기", disabled=btn_disabled):
-            if btn_disabled:
-                st.info("오답이 없으므로 다시 풀 문제가 없습니다.")
-            else:
-                st.session_state.quiz_mode = "오답 다시 풀기"
-                st.session_state.wrong_questions = wrong_questions
-                st.session_state.user_answers_wrong = {}
-                st.session_state.current_wrong_idx = 0
-                st.session_state.checked_wrong = {}
-                st.session_state.submitted_wrong = False
-                st.rerun()
+            st.session_state.quiz_mode = "오답 다시 풀기"
+            st.session_state.wrong_questions = wrong_questions
+            st.session_state.user_answers_wrong = {}
+            st.session_state.current_wrong_idx = 0
+            st.session_state.checked_wrong = {}
+            st.session_state.submitted_wrong = False
+            st.rerun()
 
 else:
     st.error(f"Question data not found. Please ensure '{selected_version['file']}' exists.")
