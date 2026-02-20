@@ -2,8 +2,9 @@
 import streamlit as st
 import json
 import os
+from datetime import datetime
 
-APP_VERSION = "v2026.02.20-1"
+APP_VERSION = "v2026.02.20-2"
 
 # Set page config with mobile optimization
 st.set_page_config(
@@ -170,6 +171,47 @@ st.markdown("""
 
 # Get base directory for proper file paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+WRONG_ANSWERS_FILE = os.path.join(BASE_DIR, "wrong_answers_history.json")
+
+# Wrong Answer History Management Functions
+def load_wrong_answers_history():
+    """Load saved wrong answer history from JSON file"""
+    if os.path.exists(WRONG_ANSWERS_FILE):
+        try:
+            with open(WRONG_ANSWERS_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            return {}
+    return {}
+
+def save_wrong_answers(date_key, questions):
+    """Save wrong answers for a specific date"""
+    history = load_wrong_answers_history()
+    history[date_key] = questions
+    with open(WRONG_ANSWERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(history, f, ensure_ascii=False, indent=2)
+
+def delete_wrong_answer(date_key, question_id):
+    """Delete a specific question from a wrong answer set"""
+    history = load_wrong_answers_history()
+    if date_key in history:
+        history[date_key] = [q for q in history[date_key] if q['id'] != question_id]
+        if not history[date_key]:  # If empty, delete the date entry
+            del history[date_key]
+        with open(WRONG_ANSWERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(history, f, ensure_ascii=False, indent=2)
+        return True
+    return False
+
+def delete_wrong_answer_set(date_key):
+    """Delete entire wrong answer set for a date"""
+    history = load_wrong_answers_history()
+    if date_key in history:
+        del history[date_key]
+        with open(WRONG_ANSWERS_FILE, "w", encoding="utf-8") as f:
+            json.dump(history, f, ensure_ascii=False, indent=2)
+        return True
+    return False
 
 # Image paths mapping
 IMAGES = {
@@ -270,6 +312,8 @@ if 'submitted_wrong' not in st.session_state:
     st.session_state.submitted_wrong = False
 if 'wrong_questions' not in st.session_state:
     st.session_state.wrong_questions = []
+if 'wrong_answer_date_key' not in st.session_state:
+    st.session_state.wrong_answer_date_key = None
 
 # Sidebar Controls
 st.sidebar.markdown("---")
@@ -278,6 +322,31 @@ st.sidebar.title("🎮 Quiz Control")
 # Show current mode if in wrong answer practice
 if st.session_state.quiz_mode == "오답 다시 풀기":
     st.sidebar.info("📌 현재 오답 다시 풀기 모드")
+
+# Saved Wrong Answers Section
+st.sidebar.markdown("---")
+st.sidebar.subheader("💾 저장된 오답")
+wrong_history = load_wrong_answers_history()
+if wrong_history:
+    saved_dates = list(wrong_history.keys())
+    saved_dates.sort(reverse=True)
+    selected_date = st.sidebar.selectbox(
+        "오답 세트 선택:",
+        ["-- 선택하세요 --"] + saved_dates,
+        key="saved_wrong_selector"
+    )
+    if selected_date != "-- 선택하세요 --":
+        if st.sidebar.button("이 오답 세트 불러오기"):
+            st.session_state.quiz_mode = "오답 다시 풀기"
+            st.session_state.wrong_questions = wrong_history[selected_date]
+            st.session_state.wrong_answer_date_key = selected_date
+            st.session_state.user_answers_wrong = {}
+            st.session_state.current_wrong_idx = 0
+            st.session_state.checked_wrong = {}
+            st.session_state.submitted_wrong = False
+            st.rerun()
+else:
+    st.sidebar.caption("저장된 오답이 없습니다.")
 
 # Quiz Mode Selection
 quiz_mode = st.sidebar.radio(
@@ -348,12 +417,20 @@ if questions:
                 st.session_state.current_wrong_idx = 0
                 st.session_state.checked_wrong = {}
                 st.rerun()
+            if st.session_state.wrong_answer_date_key:
+                if st.button("🗑️ 이 오답 세트 삭제"):
+                    if delete_wrong_answer_set(st.session_state.wrong_answer_date_key):
+                        st.success("오답 세트가 삭제되었습니다!")
+                        st.session_state.quiz_mode = "한 번에 보기"
+                        st.session_state.wrong_answer_date_key = None
+                        st.rerun()
             if st.button("🏠 전체 시험으로 돌아가기"):
                 st.session_state.quiz_mode = "한 번에 보기"
                 st.session_state.submitted = False
                 st.session_state.user_answers = {}
                 st.session_state.current_question_idx = 0
                 st.session_state.checked_questions = {}
+                st.session_state.wrong_answer_date_key = None
                 st.rerun()
         else:
             # 오답 문제 풀이
@@ -403,6 +480,24 @@ if questions:
                 st.write("---")
                 st.markdown("### 💡 해설")
                 st.info(q['explanation'])
+                st.write("---")
+                
+                # Button to mark question as mastered and remove it
+                if st.session_state.wrong_answer_date_key:
+                    if st.button("✅ 완벽히 이해함 (이 문제 삭제)", key=f"master_{q['id']}"):
+                        if delete_wrong_answer(st.session_state.wrong_answer_date_key, q['id']):
+                            # Update current wrong_questions list
+                            st.session_state.wrong_questions = [wq for wq in wrong_questions if wq['id'] != q['id']]
+                            if not st.session_state.wrong_questions:
+                                st.success("모든 문제를 마스터했습니다! 🎉")
+                                st.session_state.quiz_mode = "한 번에 보기"
+                                st.session_state.wrong_answer_date_key = None
+                            else:
+                                st.success("문제가 삭제되었습니다!")
+                                if idx >= len(st.session_state.wrong_questions):
+                                    st.session_state.current_wrong_idx = len(st.session_state.wrong_questions) - 1
+                            st.rerun()
+                
                 st.write("---")
                 col1, col2 = st.columns([1, 1], gap="small")
                 with col1:
@@ -673,16 +768,25 @@ if questions:
             st.session_state.checked_questions = {}
             st.rerun()
 
-        # 오답만 다시 풀기 버튼 (항상 결과화면 하단에)
+        # 오답 저장 및 다시 풀기 버튼
         btn_disabled = len(wrong_questions) == 0
-        if st.button("❗ 오답만 다시 풀기", disabled=btn_disabled):
-            st.session_state.quiz_mode = "오답 다시 풀기"
-            st.session_state.wrong_questions = wrong_questions
-            st.session_state.user_answers_wrong = {}
-            st.session_state.current_wrong_idx = 0
-            st.session_state.checked_wrong = {}
-            st.session_state.submitted_wrong = False
-            st.rerun()
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("💾 오답 저장하기", disabled=btn_disabled):
+                date_key = datetime.now().strftime("%Y-%m-%d %H:%M")
+                save_wrong_answers(date_key, wrong_questions)
+                st.success(f"✅ 오답 {len(wrong_questions)}문제가 저장되었습니다!")
+                st.rerun()
+        with col2:
+            if st.button("❗ 오답만 다시 풀기", disabled=btn_disabled):
+                st.session_state.quiz_mode = "오답 다시 풀기"
+                st.session_state.wrong_questions = wrong_questions
+                st.session_state.wrong_answer_date_key = None  # New practice, not from saved
+                st.session_state.user_answers_wrong = {}
+                st.session_state.current_wrong_idx = 0
+                st.session_state.checked_wrong = {}
+                st.session_state.submitted_wrong = False
+                st.rerun()
 
 else:
     st.error(f"Question data not found. Please ensure '{selected_version['file']}' exists.")
