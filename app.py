@@ -275,14 +275,19 @@ if 'wrong_questions' not in st.session_state:
 st.sidebar.markdown("---")
 st.sidebar.title("🎮 Quiz Control")
 
+# Show current mode if in wrong answer practice
+if st.session_state.quiz_mode == "오답 다시 풀기":
+    st.sidebar.info("📌 현재 오답 다시 풀기 모드")
+
 # Quiz Mode Selection
 quiz_mode = st.sidebar.radio(
     "풀이 모드 선택:",
     ["한 번에 보기", "한 문제씩 풀기"],
-    index=0 if st.session_state.quiz_mode == "한 번에 보기" else 1
+    index=0 if st.session_state.quiz_mode in ["한 번에 보기", "오답 다시 풀기"] else 1
 )
 
-if quiz_mode != st.session_state.quiz_mode:
+# Only update quiz_mode from sidebar if not in wrong answer practice mode
+if quiz_mode != st.session_state.quiz_mode and st.session_state.quiz_mode != "오답 다시 풀기":
     st.session_state.quiz_mode = quiz_mode
     st.session_state.current_question_idx = 0
     st.session_state.checked_questions = {}
@@ -293,6 +298,12 @@ if st.sidebar.button("Reset Quiz"):
     st.session_state.submitted = False
     st.session_state.current_question_idx = 0
     st.session_state.checked_questions = {}
+    st.session_state.quiz_mode = "한 번에 보기"
+    st.session_state.user_answers_wrong = {}
+    st.session_state.checked_wrong = {}
+    st.session_state.current_wrong_idx = 0
+    st.session_state.submitted_wrong = False
+    st.session_state.wrong_questions = []
     st.rerun()
 
 st.title(f"{selected_version['title']}")
