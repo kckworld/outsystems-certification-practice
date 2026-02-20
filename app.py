@@ -317,7 +317,35 @@ if questions:
         wrong_questions = st.session_state.get("wrong_questions", [])
         if not wrong_questions:
             st.error("오답 데이터가 없습니다. 전체 퀴즈를 먼저 풀어주세요.")
+        elif st.session_state.get("submitted_wrong", False):
+            # 오답 풀이 결과
+            score = 0
+            for q in wrong_questions:
+                if st.session_state.user_answers_wrong.get(q['id']) == q['answer_code']:
+                    score += 1
+            st.header("📊 오답 풀이 결과")
+            st.metric("오답 문제 수", len(wrong_questions))
+            st.metric("맞춘 오답 수", score, f"{score/len(wrong_questions)*100:.1f}%")
+            st.progress(score / len(wrong_questions))
+            if score == len(wrong_questions):
+                st.success("모든 오답을 맞췄습니다! 🎉")
+            else:
+                st.info("아직 틀린 문제가 있습니다. 반복해서 연습하세요!")
+            if st.button("🔄 오답 다시 풀기 반복"):
+                st.session_state.submitted_wrong = False
+                st.session_state.user_answers_wrong = {}
+                st.session_state.current_wrong_idx = 0
+                st.session_state.checked_wrong = {}
+                st.rerun()
+            if st.button("🏠 전체 시험으로 돌아가기"):
+                st.session_state.quiz_mode = "한 번에 보기"
+                st.session_state.submitted = False
+                st.session_state.user_answers = {}
+                st.session_state.current_question_idx = 0
+                st.session_state.checked_questions = {}
+                st.rerun()
         else:
+            # 오답 문제 풀이
             idx = st.session_state.get("current_wrong_idx", 0)
             if idx >= len(wrong_questions):
                 st.session_state.submitted_wrong = True
@@ -384,33 +412,6 @@ if questions:
             answered_count = len([a for a in st.session_state.user_answers_wrong.values() if a])
             checked_count = len([v for v in st.session_state.checked_wrong.values() if v])
             st.caption(f"📌 오답 답변: {answered_count} / {len(wrong_questions)} | 확인: {checked_count} / {len(wrong_questions)}")
-        # 오답 풀이 결과
-        if st.session_state.get("submitted_wrong", False):
-            score = 0
-            for q in wrong_questions:
-                if st.session_state.user_answers_wrong.get(q['id']) == q['answer_code']:
-                    score += 1
-            st.header("📊 오답 풀이 결과")
-            st.metric("오답 문제 수", len(wrong_questions))
-            st.metric("맞춘 오답 수", score, f"{score/len(wrong_questions)*100:.1f}%")
-            st.progress(score / len(wrong_questions))
-            if score == len(wrong_questions):
-                st.success("모든 오답을 맞췄습니다! 🎉")
-            else:
-                st.info("아직 틀린 문제가 있습니다. 반복해서 연습하세요!")
-            if st.button("🔄 오답 다시 풀기 반복"):
-                st.session_state.submitted_wrong = False
-                st.session_state.user_answers_wrong = {}
-                st.session_state.current_wrong_idx = 0
-                st.session_state.checked_wrong = {}
-                st.rerun()
-            if st.button("🏠 전체 시험으로 돌아가기"):
-                st.session_state.quiz_mode = "한 번에 보기"
-                st.session_state.submitted = False
-                st.session_state.user_answers = {}
-                st.session_state.current_question_idx = 0
-                st.session_state.checked_questions = {}
-                st.rerun()
     # 기존 전체/한 문제씩 모드
     elif not st.session_state.submitted:
         # Check quiz mode
