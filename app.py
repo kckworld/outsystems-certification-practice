@@ -420,20 +420,20 @@ if questions:
                 st.session_state.submitted_wrong = False
                 st.rerun()
             
-            with col2:
-                # Quick jump input
-                jump_to = st.number_input(
-                    "바로가기:",
-                    min_value=1,
-                    max_value=len(questions),
-                    value=idx + 1,
-                    step=1,
-                    key=f"jump_input_{idx}",
-                    help="문제 번호를 입력하세요"
-                )
-                if jump_to != idx + 1:
-                    st.session_state.current_question_idx = jump_to - 1
-                    st.rerun()
+        with col2:
+            # Quick jump input
+            jump_to = st.number_input(
+                "바로가기:",
+                min_value=1,
+                max_value=len(questions),
+                value=idx + 1,
+                step=1,
+                key=f"jump_input_{idx}",
+                help="문제 번호를 입력하세요"
+            )
+            if jump_to != idx + 1:
+                st.session_state.current_question_idx = jump_to - 1
+                st.rerun()
             
             st.markdown(f"### 문제 {q['id']}")
             st.markdown(f"#### {get_bilingual_q(q['question'])}")
