@@ -5,6 +5,7 @@ import os
 
 APP_VERSION = "v2026.02.20-1"
 
+APP_VERSION = "v2026.02.20-1"
 # Set page config with mobile optimization
 st.set_page_config(
     page_title="OutSystems Certification Practice", 
@@ -15,6 +16,9 @@ st.set_page_config(
         'About': "OutSystems Certification Practice - Optimized for Mobile & Desktop"
     }
 )
+
+# 버전 표기 UI (상단에 한 번만)
+st.markdown(f"<div style='text-align:right; font-size:0.9em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
 
 # Custom CSS for better aesthetics and mobile optimization
 st.markdown(f"<div style='text-align:right; font-size:0.8em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
@@ -185,7 +189,7 @@ EXAM_VERSIONS = {
     },
     "버전 2: 신규 통합 모의고사 (70문항)": {
         "file": os.path.join(BASE_DIR, "new_exam_data.json"),
-    st.markdown(f"<div style='text-align:right; font-size:0.9em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
+        "has_bilingual": False,
         "title": "📝 New Practice Exam (Core + Scenario)"
     },
     "버전 3: 고난도 시나리오 (100문항)": {
