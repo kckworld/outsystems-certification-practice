@@ -419,13 +419,6 @@ if questions:
                 st.session_state.checked_wrong = {}
                 st.session_state.submitted_wrong = False
                 st.rerun()
-                    value=idx + 1,
-                    key=f"question_slider_{idx}",
-                    help="슬라이더를 움직여 원하는 문제로 바로 이동하세요"
-                )
-                if selected_q != idx + 1:
-                    st.session_state.current_question_idx = selected_q - 1
-                    st.rerun()
             
             with col2:
                 # Quick jump input
