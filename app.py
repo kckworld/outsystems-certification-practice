@@ -4,7 +4,7 @@ import json
 import os
 from datetime import datetime
 
-APP_VERSION = "v2026.02.21-1"
+APP_VERSION = "v2026.02.21-2"
 
 # Set page config with mobile optimization
 st.set_page_config(
@@ -326,45 +326,65 @@ IMAGES = {
 
 # Exam Versions Configuration
 EXAM_VERSIONS = {
+    "🏦 문제은행 (Question Bank)": {
+        "file": os.path.join(BASE_DIR, "data", "questions.jsonl"),
+        "has_bilingual": False,
+        "title": "🏦 Question Bank - Custom Questions",
+        "is_jsonl": True
+    },
     "버전 1: 기본 모의고사 (KR/EN)": {
         "file": os.path.join(BASE_DIR, "structured_data.json"),
         "has_bilingual": True,
-        "title": "🛡️ OutSystems Associate Certification Core Exam"
+        "title": "🛡️ OutSystems Associate Certification Core Exam",
+        "is_jsonl": False
     },
     "버전 2: 신규 통합 모의고사 (70문항)": {
         "file": os.path.join(BASE_DIR, "new_exam_data.json"),
         "has_bilingual": False,
-        "title": "📝 New Practice Exam (Core + Scenario)"
+        "title": "📝 New Practice Exam (Core + Scenario)",
+        "is_jsonl": False
     },
     "버전 3: 고난도 시나리오 (100문항)": {
         "file": os.path.join(BASE_DIR, "scenario_exam_data.json"),
         "has_bilingual": False,
-        "title": "🌪️ Advanced Scenario Mock Exam"
+        "title": "🌪️ Advanced Scenario Mock Exam",
+        "is_jsonl": False
     },
     "버전 4: 샘플 시험 Set 1 (50문항)": {
         "file": os.path.join(BASE_DIR, "sample_exam_set1.json"),
         "has_bilingual": False,
-        "title": "📚 Sample Exam Set 1"
+        "title": "📚 Sample Exam Set 1",
+        "is_jsonl": False
     },
     "버전 5: 샘플 시험 Set 2 (50문항)": {
         "file": os.path.join(BASE_DIR, "sample_exam_set2.json"),
         "has_bilingual": False,
-        "title": "📚 Sample Exam Set 2"
+        "title": "📚 Sample Exam Set 2",
+        "is_jsonl": False
     },
     "버전 6: 샘플 시험 Set 3 (50문항)": {
         "file": os.path.join(BASE_DIR, "sample_exam_set3.json"),
         "has_bilingual": False,
-        "title": "📚 Sample Exam Set 3"
+        "title": "📚 Sample Exam Set 3",
+        "is_jsonl": False
     }
 }
 
 # Load data
 @st.cache_data
-def load_quiz_data(file_path):
+def load_quiz_data(file_path, is_jsonl=False):
     questions = []
     if os.path.exists(file_path):
         with open(file_path, "r", encoding="utf-8") as f:
-            questions = json.load(f)
+            if is_jsonl:
+                # Read JSONL format (one JSON per line)
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        questions.append(json.loads(line))
+            else:
+                # Read regular JSON format
+                questions = json.load(f)
             
     translations = {}
     opt_translations = {}
@@ -384,7 +404,8 @@ selected_version_name = st.sidebar.selectbox("시험 버전을 선택하세요:"
 selected_version = EXAM_VERSIONS[selected_version_name]
 
 # Load specific data
-questions, trans, opt_trans = load_quiz_data(selected_version["file"])
+is_jsonl = selected_version.get("is_jsonl", False)
+questions, trans, opt_trans = load_quiz_data(selected_version["file"], is_jsonl)
 
 # Session State for User Answers
 if 'current_version' not in st.session_state or st.session_state.current_version != selected_version_name:
@@ -478,6 +499,9 @@ with st.sidebar.expander("📤 문제 추가하기"):
                     result = add_questions_to_bank(file_content)
                     
                     if result["success"]:
+                        # Clear cache to reload questions
+                        load_quiz_data.clear()
+                        
                         st.success(f"✅ {result['added']}개 문제가 추가되었습니다!")
                         
                         # Show index info
@@ -496,6 +520,9 @@ with st.sidebar.expander("📤 문제 추가하기"):
                                     st.write(f"**문제:** {err['question']}")
                                     for e in err["errors"]:
                                         st.write(f"  - {e}")
+                        
+                        # Show reload button
+                        st.info("💡 새로 추가된 문제를 보려면 '🏦 문제은행'을 선택하세요!")
                     else:
                         st.error("❌ 문제 추가 실패")
                         if result["errors"]:
@@ -955,4 +982,31 @@ if questions:
                 st.rerun()
 
 else:
-    st.error(f"Question data not found. Please ensure '{selected_version['file']}' exists.")
+    # No questions available
+    if "문제은행" in selected_version_name or "Question Bank" in selected_version_name:
+        st.warning("📭 문제은행이 비어있습니다!")
+        st.info("""
+**문제 추가 방법:**
+1. 사이드바에서 **🔧 문제은행 관리** 섹션 열기
+2. **📤 문제 추가하기** 클릭
+3. JSON 파일 업로드
+4. 문제 추가 후 자동으로 반영됩니다!
+
+**JSON 파일 형식 예시:**
+```json
+[
+  {
+    "topic": "Client Variables",
+    "difficulty": 2,
+    "stem": "문제 내용",
+    "choices": ["A", "B", "C", "D"],
+    "answer": "A",
+    "explanation": "해설",
+    "tags": ["tag1"],
+    "source": "Generated"
+  }
+]
+```
+        """)
+    else:
+        st.error(f"Question data not found. Please ensure '{selected_version['file']}' exists.")
