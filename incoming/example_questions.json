@@ -1,0 +1,47 @@
+[
+  {
+    "topic": "Client Variables",
+    "difficulty": 2,
+    "stem": "What is the scope of a Client Variable in OutSystems?",
+    "choices": [
+      "Available across all screens in the application",
+      "Available only within the current screen",
+      "Available only during the current session",
+      "Available permanently on the device"
+    ],
+    "answer": "A",
+    "explanation": "Client Variables are available across all screens in the client-side scope of the application. They persist during the session and are stored in the browser's local storage.",
+    "tags": ["variables", "client-side", "scope"],
+    "source": "Generated"
+  },
+  {
+    "topic": "Screen Lifecycle",
+    "difficulty": 3,
+    "stem": "In which order are the following screen events executed when a screen is loaded?",
+    "choices": [
+      "OnInitialize -> OnReady -> OnRender",
+      "OnInitialize -> OnRender -> OnReady",
+      "OnRender -> OnInitialize -> OnReady",
+      "OnReady -> OnInitialize -> OnRender"
+    ],
+    "answer": "B",
+    "explanation": "The correct order is OnInitialize (executed first, fetches data), OnRender (prepares screen for display), and OnReady (executed after screen is fully rendered and interactive).",
+    "tags": ["lifecycle", "events", "screen"],
+    "source": "Generated"
+  },
+  {
+    "topic": "Data Widgets",
+    "difficulty": 1,
+    "stem": "Which widget should you use to display a list of records with built-in pagination support?",
+    "choices": [
+      "List widget",
+      "Table widget",
+      "Table Records widget",
+      "List Records widget"
+    ],
+    "answer": "D",
+    "explanation": "The List Records widget provides built-in pagination and is the most common widget for displaying lists of data in OutSystems.",
+    "tags": ["widgets", "data", "pagination"],
+    "source": "Generated"
+  }
+]

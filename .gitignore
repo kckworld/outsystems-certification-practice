@@ -7,7 +7,6 @@ __pycache__/
 env/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
@@ -20,6 +19,37 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# Node.js / TypeScript
+node_modules/
+dist/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.yarn-integrity
+
+# Test coverage
+coverage/
+.nyc_output/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Wrong answers history
+wrong_answers_history.json
+
+# Incoming question files (except examples)
+incoming/*
+!incoming/example_questions.json
+
+# Test data
+tests/test-data/
 
 # Data/Scripts to Ignore (Keep only app.py and data needed for app)
 extract_data.py
