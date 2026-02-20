@@ -4,7 +4,7 @@ import json
 import os
 from datetime import datetime
 
-APP_VERSION = "v2026.02.20-2"
+APP_VERSION = "v2026.02.21-1"
 
 # Set page config with mobile optimization
 st.set_page_config(
@@ -213,6 +213,110 @@ def delete_wrong_answer_set(date_key):
         return True
     return False
 
+# Question Bank Management Functions
+QUESTIONS_FILE = os.path.join(BASE_DIR, "data", "questions.jsonl")
+INDEX_FILE = os.path.join(BASE_DIR, "data", "index.json")
+
+def load_question_bank_index():
+    """Load question bank index"""
+    if os.path.exists(INDEX_FILE):
+        try:
+            with open(INDEX_FILE, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except:
+            pass
+    return {
+        "lastId": 0,
+        "totalQuestions": 0,
+        "topicCounts": {},
+        "difficultyCounts": {"1": 0, "2": 0, "3": 0},
+        "lastUpdated": datetime.now().isoformat()
+    }
+
+def save_question_bank_index(index):
+    """Save question bank index"""
+    index["lastUpdated"] = datetime.now().isoformat()
+    os.makedirs(os.path.dirname(INDEX_FILE), exist_ok=True)
+    with open(INDEX_FILE, "w", encoding="utf-8") as f:
+        json.dump(index, f, ensure_ascii=False, indent=2)
+
+def generate_question_id(last_id):
+    """Generate next question ID"""
+    next_id = last_id + 1
+    return f"OSAD-{str(next_id).zfill(4)}"
+
+def validate_question(q):
+    """Validate question schema"""
+    errors = []
+    
+    # Required fields
+    required = ["topic", "difficulty", "stem", "choices", "answer", "explanation", "tags", "source"]
+    for field in required:
+        if field not in q:
+            errors.append(f"필수 필드 누락: {field}")
+    
+    # Difficulty validation
+    if "difficulty" in q and q["difficulty"] not in [1, 2, 3]:
+        errors.append(f"difficulty는 1, 2, 3 중 하나여야 합니다 (현재: {q['difficulty']})")
+    
+    # Choices validation
+    if "choices" in q:
+        if not isinstance(q["choices"], list):
+            errors.append("choices는 배열이어야 합니다")
+        elif len(q["choices"]) != 4:
+            errors.append(f"choices는 정확히 4개여야 합니다 (현재: {len(q['choices'])}개)")
+    
+    # Answer validation
+    if "answer" in q and q["answer"] not in ["A", "B", "C", "D"]:
+        errors.append(f"answer는 A, B, C, D 중 하나여야 합니다 (현재: {q['answer']})")
+    
+    return errors
+
+def add_questions_to_bank(questions_data):
+    """Add questions to the question bank"""
+    index = load_question_bank_index()
+    added = []
+    errors = []
+    
+    try:
+        questions = json.loads(questions_data) if isinstance(questions_data, str) else questions_data
+        if not isinstance(questions, list):
+            questions = [questions]
+        
+        for q in questions:
+            # Validate
+            validation_errors = validate_question(q)
+            if validation_errors:
+                errors.append({"question": q.get("stem", "Unknown")[:50], "errors": validation_errors})
+                continue
+            
+            # Generate ID if not present
+            if "id" not in q or not q["id"]:
+                q["id"] = generate_question_id(index["lastId"])
+                index["lastId"] += 1
+            
+            # Append to JSONL file
+            os.makedirs(os.path.dirname(QUESTIONS_FILE), exist_ok=True)
+            with open(QUESTIONS_FILE, "a", encoding="utf-8") as f:
+                f.write(json.dumps(q, ensure_ascii=False) + "\n")
+            
+            # Update index
+            index["totalQuestions"] += 1
+            topic = q["topic"]
+            index["topicCounts"][topic] = index["topicCounts"].get(topic, 0) + 1
+            difficulty = str(q["difficulty"])
+            index["difficultyCounts"][difficulty] = index["difficultyCounts"].get(difficulty, 0) + 1
+            
+            added.append(q["id"])
+        
+        save_question_bank_index(index)
+        return {"success": True, "added": len(added), "errors": errors, "index": index}
+    
+    except json.JSONDecodeError as e:
+        return {"success": False, "added": 0, "errors": [{"question": "JSON 파싱 오류", "errors": [str(e)]}], "index": index}
+    except Exception as e:
+        return {"success": False, "added": 0, "errors": [{"question": "처리 오류", "errors": [str(e)]}], "index": index}
+
 # Image paths mapping
 IMAGES = {
     "46": os.path.join(BASE_DIR, "Q46.png"),
@@ -347,6 +451,68 @@ if wrong_history:
             st.rerun()
 else:
     st.sidebar.caption("저장된 오답이 없습니다.")
+
+# Question Bank Admin Section
+st.sidebar.markdown("---")
+st.sidebar.subheader("🔧 문제은행 관리")
+
+with st.sidebar.expander("📤 문제 추가하기"):
+    uploaded_file = st.file_uploader(
+        "JSON 파일 업로드",
+        type=["json"],
+        help="문제가 담긴 JSON 배열 파일을 업로드하세요",
+        key="question_uploader"
+    )
+    
+    if uploaded_file is not None:
+        try:
+            # Read file content
+            file_content = uploaded_file.read().decode("utf-8")
+            
+            # Preview
+            st.text_area("파일 미리보기", file_content[:500] + "...", height=100, disabled=True)
+            
+            # Add button
+            if st.button("문제 추가하기", key="add_questions_btn"):
+                with st.spinner("문제를 추가하는 중..."):
+                    result = add_questions_to_bank(file_content)
+                    
+                    if result["success"]:
+                        st.success(f"✅ {result['added']}개 문제가 추가되었습니다!")
+                        
+                        # Show index info
+                        index = result["index"]
+                        st.info(f"""
+**문제은행 현황**
+- 전체 문제: {index['totalQuestions']}개
+- 마지막 ID: {index['lastId']}
+- Topic 수: {len(index['topicCounts'])}개
+                        """)
+                        
+                        if result["errors"]:
+                            st.warning(f"⚠️ {len(result['errors'])}개 문제 추가 실패")
+                            with st.expander("오류 내역 보기"):
+                                for err in result["errors"]:
+                                    st.write(f"**문제:** {err['question']}")
+                                    for e in err["errors"]:
+                                        st.write(f"  - {e}")
+                    else:
+                        st.error("❌ 문제 추가 실패")
+                        if result["errors"]:
+                            for err in result["errors"]:
+                                st.write(f"**{err['question']}**")
+                                for e in err["errors"]:
+                                    st.write(f"  - {e}")
+        except Exception as e:
+            st.error(f"파일 처리 오류: {str(e)}")
+    
+    # Show current stats
+    index = load_question_bank_index()
+    if index["totalQuestions"] > 0:
+        st.markdown("---")
+        st.markdown("**현재 문제은행**")
+        st.write(f"📊 전체: {index['totalQuestions']}문제")
+        st.write(f"🆔 마지막 ID: OSAD-{str(index['lastId']).zfill(4)}")
 
 # Quiz Mode Selection
 quiz_mode = st.sidebar.radio(
