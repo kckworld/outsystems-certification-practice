@@ -185,7 +185,7 @@ EXAM_VERSIONS = {
     },
     "버전 2: 신규 통합 모의고사 (70문항)": {
         "file": os.path.join(BASE_DIR, "new_exam_data.json"),
-        "has_bilingual": False,
+    st.markdown(f"<div style='text-align:right; font-size:0.9em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
         "title": "📝 New Practice Exam (Core + Scenario)"
     },
     "버전 3: 고난도 시나리오 (100문항)": {
@@ -246,7 +246,7 @@ if 'current_version' not in st.session_state or st.session_state.current_version
 
 if 'user_answers' not in st.session_state:
     st.session_state.user_answers = {}
-if 'submitted' not in st.session_state:
+if 'submitted' not in st.session_state or st.session_state.submitted not in [True, False]:
     st.session_state.submitted = False
 
 # Session State for Question Navigation
