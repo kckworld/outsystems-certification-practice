@@ -638,6 +638,12 @@ if questions:
                 st.info(q['explanation'])
         
         if st.button("Restart Quiz / 다시 풀기"):
+            st.session_state.submitted = False
+            st.session_state.user_answers = {}
+            st.session_state.current_question_idx = 0
+            st.session_state.checked_questions = {}
+            st.rerun()
+
         # 오답만 다시 풀기 버튼 (항상 결과화면 하단에)
         btn_disabled = len(wrong_questions) == 0
         if st.button("❗ 오답만 다시 풀기", disabled=btn_disabled):
