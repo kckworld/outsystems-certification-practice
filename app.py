@@ -398,26 +398,27 @@ if questions:
                 st.session_state.current_question_idx = 0
                 st.session_state.checked_questions = {}
                 st.rerun()
-        return
-    # 기존 전체/한 문제씩 모드
-    if not st.session_state.submitted:
-        # Check quiz mode
-        if st.session_state.quiz_mode == "한 문제씩 풀기":
-            # Single Question Mode
-            idx = st.session_state.current_question_idx
-            if idx >= len(questions):
-                st.session_state.submitted = True
+
+        if st.button("Restart Quiz / 다시 풀기"):
+            st.session_state.submitted = False
+            st.session_state.user_answers = {}
+            st.session_state.current_question_idx = 0
+            st.session_state.checked_questions = {}
+            st.rerun()
+
+        # 오답만 다시 풀기 버튼 (항상 결과화면 하단에)
+        btn_disabled = len(wrong_questions) == 0
+        if st.button("❗ 오답만 다시 풀기", disabled=btn_disabled):
+            if btn_disabled:
+                st.info("오답이 없으므로 다시 풀 문제가 없습니다.")
+            else:
+                st.session_state.quiz_mode = "오답 다시 풀기"
+                st.session_state.wrong_questions = wrong_questions
+                st.session_state.user_answers_wrong = {}
+                st.session_state.current_wrong_idx = 0
+                st.session_state.checked_wrong = {}
+                st.session_state.submitted_wrong = False
                 st.rerun()
-            
-            q = questions[idx]
-            
-            # Question navigator
-            col1, col2 = st.columns([3, 1])
-            with col1:
-                selected_q = st.slider(
-                    "문제 선택:",
-                    min_value=1,
-                    max_value=len(questions),
                     value=idx + 1,
                     key=f"question_slider_{idx}",
                     help="슬라이더를 움직여 원하는 문제로 바로 이동하세요"
