@@ -281,6 +281,7 @@ if st.sidebar.button("Reset Quiz"):
     st.session_state.checked_questions = {}
     st.rerun()
 
+st.markdown(f"<div style='text-align:right; font-size:0.9em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
 st.title(f"{selected_version['title']}")
 st.info(f"선택된 모의고사: {selected_version_name}")
 st.write("---")
