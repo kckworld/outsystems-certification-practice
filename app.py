@@ -5,7 +5,6 @@ import os
 
 APP_VERSION = "v2026.02.20-1"
 
-APP_VERSION = "v2026.02.20-1"
 # Set page config with mobile optimization
 st.set_page_config(
     page_title="OutSystems Certification Practice", 
@@ -21,7 +20,6 @@ st.set_page_config(
 st.markdown(f"<div style='text-align:right; font-size:0.9em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
 
 # Custom CSS for better aesthetics and mobile optimization
-st.markdown(f"<div style='text-align:right; font-size:0.8em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
 st.markdown("""
     <style>
     .main {
@@ -261,6 +259,18 @@ if 'current_question_idx' not in st.session_state:
 if 'checked_questions' not in st.session_state:
     st.session_state.checked_questions = {}  # Track which questions have been checked
 
+# Session State for Wrong Answer Practice
+if 'user_answers_wrong' not in st.session_state:
+    st.session_state.user_answers_wrong = {}
+if 'checked_wrong' not in st.session_state:
+    st.session_state.checked_wrong = {}
+if 'current_wrong_idx' not in st.session_state:
+    st.session_state.current_wrong_idx = 0
+if 'submitted_wrong' not in st.session_state:
+    st.session_state.submitted_wrong = False
+if 'wrong_questions' not in st.session_state:
+    st.session_state.wrong_questions = []
+
 # Sidebar Controls
 st.sidebar.markdown("---")
 st.sidebar.title("🎮 Quiz Control")
@@ -285,7 +295,6 @@ if st.sidebar.button("Reset Quiz"):
     st.session_state.checked_questions = {}
     st.rerun()
 
-st.markdown(f"<div style='text-align:right; font-size:0.9em; color:#888;'>버전: {APP_VERSION}</div>", unsafe_allow_html=True)
 st.title(f"{selected_version['title']}")
 st.info(f"선택된 모의고사: {selected_version_name}")
 st.write("---")
@@ -397,51 +406,56 @@ if questions:
                 st.rerun()
             if st.button("🏠 전체 시험으로 돌아가기"):
                 st.session_state.quiz_mode = "한 번에 보기"
-                if not st.session_state.submitted:
-                    # Check quiz mode
-                    if st.session_state.quiz_mode == "한 문제씩 풀기":
-                        # Single Question Mode
-                        idx = st.session_state.current_question_idx
-                        if idx >= len(questions):
-                            st.session_state.submitted = True
-                            st.rerun()
-                        q = questions[idx]
-                        # ... (한 문제씩 풀기 코드) ...
-                        # Show answer status
-                        st.write("---")
-                        answered_count = len([a for a in st.session_state.user_answers.values() if a])
-                        checked_count = len([v for v in st.session_state.checked_questions.values() if v])
-                        st.caption(f"📌 답변한 문제: {answered_count} / {len(questions)} | 확인한 문제: {checked_count} / {len(questions)}")
-                    # All Questions Mode (Original)
-                    else:
-                        with st.form("quiz_form"):
-                            for idx, q in enumerate(questions):
-                                st.markdown(f"#### 문제 {q['id']}")
-                                st.markdown(get_bilingual_q(q['question']))
-                                # Show image if exists (only for version 1 usually, but generic-safe)
-                                if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
-                                    st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width="stretch")
-                                # Format options for display
-                                options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
-                                selected = st.radio(
-                                    f"Select your answer for Question {q['id']}:",
-                                    options_list,
-                                    index=None,
-                                    key=f"q_{idx}_{q['id']}",
-                                    label_visibility="collapsed"
-                                )
-                                # Store answer (just the code A, B, C...)
-                                st.session_state.user_answers[q['id']] = selected[0] if selected else None
-                                st.write("") # Spacer
-                            submit_btn = st.form_submit_button("Submit Exam / 답안 제출", use_container_width=True)
-                            if submit_btn:
-                                st.session_state.submitted = True
-                                st.rerun()
-                else:
-                    # Results Section
-                    score = 0
-                    wrong_questions = []
-                    # ...existing code...
+                st.session_state.submitted = False
+                st.session_state.user_answers = {}
+                st.session_state.current_question_idx = 0
+                st.session_state.checked_questions = {}
+                st.rerun()
+        return
+    # 기존 전체/한 문제씩 모드
+    if not st.session_state.submitted:
+        # Check quiz mode
+        if st.session_state.quiz_mode == "한 문제씩 풀기":
+            # Single Question Mode
+            idx = st.session_state.current_question_idx
+            if idx >= len(questions):
+                st.session_state.submitted = True
+                st.rerun()
+            
+            q = questions[idx]
+            
+            # Question navigator
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                selected_q = st.slider(
+                    "문제 선택:",
+                    min_value=1,
+                    max_value=len(questions),
+                    value=idx + 1,
+                    key=f"question_slider_{idx}",
+                    help="슬라이더를 움직여 원하는 문제로 바로 이동하세요"
+                )
+                if selected_q != idx + 1:
+                    st.session_state.current_question_idx = selected_q - 1
+                    st.rerun()
+            
+            with col2:
+                # Quick jump input
+                jump_to = st.number_input(
+                    "바로가기:",
+                    min_value=1,
+                    max_value=len(questions),
+                    value=idx + 1,
+                    step=1,
+                    key=f"jump_input_{idx}",
+                    help="문제 번호를 입력하세요"
+                )
+                if jump_to != idx + 1:
+                    st.session_state.current_question_idx = jump_to - 1
+                    st.rerun()
+            
+            st.markdown(f"### 문제 {q['id']}")
+            st.markdown(f"#### {get_bilingual_q(q['question'])}")
             # Show image if exists
             if q['id'] in IMAGES and selected_version["has_bilingual"] and os.path.exists(IMAGES[q['id']]):
                 st.image(IMAGES[q['id']], caption=f"Reference for Question {q['id']}", width="stretch")
@@ -548,7 +562,7 @@ if questions:
             answered_count = len([a for a in st.session_state.user_answers.values() if a])
             checked_count = len([v for v in st.session_state.checked_questions.values() if v])
             st.caption(f"📌 답변한 문제: {answered_count} / {len(questions)} | 확인한 문제: {checked_count} / {len(questions)}")
-            
+        
         else:
             # All Questions Mode (Original)
             with st.form("quiz_form"):
@@ -661,13 +675,6 @@ if questions:
                 st.session_state.checked_wrong = {}
                 st.session_state.submitted_wrong = False
                 st.rerun()
-
-        if st.button("Restart Quiz / 다시 풀기"):
-            st.session_state.submitted = False
-            st.session_state.user_answers = {}
-            st.session_state.current_question_idx = 0
-            st.session_state.checked_questions = {}
-            st.rerun()
 
 else:
     st.error(f"Question data not found. Please ensure '{selected_version['file']}' exists.")
