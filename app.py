@@ -295,6 +295,107 @@ def get_bilingual_opt(opt_text):
     return f"{opt_text} ({t})" if t else opt_text
 
 if questions:
+    # 오답만 다시 풀기 모드
+    if st.session_state.quiz_mode == "오답 다시 풀기":
+        wrong_questions = st.session_state.get("wrong_questions", [])
+        if not wrong_questions:
+            st.error("오답 데이터가 없습니다. 전체 퀴즈를 먼저 풀어주세요.")
+        else:
+            idx = st.session_state.get("current_wrong_idx", 0)
+            if idx >= len(wrong_questions):
+                st.session_state.submitted_wrong = True
+                st.rerun()
+            q = wrong_questions[idx]
+            st.markdown(f"### 오답 다시 풀기 - 문제 {q['id']}")
+            st.markdown(f"#### {get_bilingual_q(q['question'])}")
+            options_list = [f"{opt['code']}. {get_bilingual_opt(opt['text'])}" for opt in q['options']]
+            selected = st.radio(
+                f"답을 선택하세요:",
+                options_list,
+                index=None if q['id'] not in st.session_state.user_answers_wrong else 
+                      [opt['code'] for opt in q['options']].index(st.session_state.user_answers_wrong[q['id']]) if st.session_state.user_answers_wrong.get(q['id']) else None,
+                key=f"wrong_q_{idx}_{q['id']}"
+            )
+            if selected:
+                st.session_state.user_answers_wrong[q['id']] = selected[0]
+            st.write("---")
+            is_checked = st.session_state.checked_wrong.get(q['id'], False)
+            if not is_checked:
+                if st.button("✅ 정답 확인 (오답)", use_container_width=True, type="primary"):
+                    if selected:
+                        st.session_state.checked_wrong[q['id']] = True
+                        st.rerun()
+                    else:
+                        st.warning("⚠️ 답을 먼저 선택해주세요!")
+            if is_checked:
+                user_choice = st.session_state.user_answers_wrong.get(q['id'])
+                correct_choice = q['answer_code']
+                is_correct = user_choice == correct_choice
+                if is_correct:
+                    st.success("🎉 정답입니다!")
+                else:
+                    st.error(f"❌ 오답입니다. 정답은 {correct_choice}입니다.")
+                st.write("---")
+                st.markdown("### 📝 선택지 및 해설")
+                for opt in q['options']:
+                    if opt['code'] == correct_choice:
+                        st.markdown(f"✅ **{opt['code']}. {get_bilingual_opt(opt['text'])}** ← 정답")
+                    elif opt['code'] == user_choice and not is_correct:
+                        st.markdown(f"❌ {opt['code']}. {get_bilingual_opt(opt['text'])} ← 내가 선택한 답")
+                    else:
+                        st.markdown(f"   {opt['code']}. {get_bilingual_opt(opt['text'])}")
+                st.write("---")
+                st.markdown("### 💡 해설")
+                st.info(q['explanation'])
+                st.write("---")
+                col1, col2 = st.columns([1, 1], gap="small")
+                with col1:
+                    if idx > 0:
+                        if st.button("⬅️ 이전 오답", use_container_width=True):
+                            st.session_state.current_wrong_idx -= 1
+                            st.rerun()
+                with col2:
+                    if idx < len(wrong_questions) - 1:
+                        if st.button("다음 오답 ➡️", use_container_width=True):
+                            st.session_state.current_wrong_idx += 1
+                            st.rerun()
+                    else:
+                        if st.button("📊 오답 풀이 결과 보기", use_container_width=True, type="primary"):
+                            st.session_state.submitted_wrong = True
+                            st.rerun()
+            st.write("---")
+            answered_count = len([a for a in st.session_state.user_answers_wrong.values() if a])
+            checked_count = len([v for v in st.session_state.checked_wrong.values() if v])
+            st.caption(f"📌 오답 답변: {answered_count} / {len(wrong_questions)} | 확인: {checked_count} / {len(wrong_questions)}")
+        # 오답 풀이 결과
+        if st.session_state.get("submitted_wrong", False):
+            score = 0
+            for q in wrong_questions:
+                if st.session_state.user_answers_wrong.get(q['id']) == q['answer_code']:
+                    score += 1
+            st.header("📊 오답 풀이 결과")
+            st.metric("오답 문제 수", len(wrong_questions))
+            st.metric("맞춘 오답 수", score, f"{score/len(wrong_questions)*100:.1f}%")
+            st.progress(score / len(wrong_questions))
+            if score == len(wrong_questions):
+                st.success("모든 오답을 맞췄습니다! 🎉")
+            else:
+                st.info("아직 틀린 문제가 있습니다. 반복해서 연습하세요!")
+            if st.button("🔄 오답 다시 풀기 반복"):
+                st.session_state.submitted_wrong = False
+                st.session_state.user_answers_wrong = {}
+                st.session_state.current_wrong_idx = 0
+                st.session_state.checked_wrong = {}
+                st.rerun()
+            if st.button("🏠 전체 시험으로 돌아가기"):
+                st.session_state.quiz_mode = "한 번에 보기"
+                st.session_state.submitted = False
+                st.session_state.user_answers = {}
+                st.session_state.current_question_idx = 0
+                st.session_state.checked_questions = {}
+                st.rerun()
+        return
+    # 기존 전체/한 문제씩 모드
     if not st.session_state.submitted:
         # Check quiz mode
         if st.session_state.quiz_mode == "한 문제씩 풀기":
@@ -539,6 +640,16 @@ if questions:
                 st.info(q['explanation'])
         
         if st.button("Restart Quiz / 다시 풀기"):
+                    # 오답만 다시 풀기 버튼
+                    if len(wrong_questions) > 0:
+                        if st.button("❗ 오답만 다시 풀기"):
+                            st.session_state.quiz_mode = "오답 다시 풀기"
+                            st.session_state.wrong_questions = wrong_questions
+                            st.session_state.user_answers_wrong = {}
+                            st.session_state.current_wrong_idx = 0
+                            st.session_state.checked_wrong = {}
+                            st.session_state.submitted_wrong = False
+                            st.rerun()
             st.session_state.submitted = False
             st.session_state.user_answers = {}
             st.session_state.current_question_idx = 0
